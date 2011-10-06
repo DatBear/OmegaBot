@@ -128,7 +128,7 @@ namespace BattleNet.Connections.Handlers
                 bool foundCharacter = false;
                 bool selectFirstCharacter = false;
                 
-                //    Console.WriteLine("{0}: [MCP] List of characters on this account", m_owner.Account);
+                //Console.WriteLine("{0}: [MCP] List of characters on this account", m_owner.Account);
                 int offset = 11;
 
                 for (int i = 1; i <= count; i++)
@@ -155,7 +155,7 @@ namespace BattleNet.Connections.Handlers
                         UpdateCharacterName(m_character);
                     }
 
-                    if (m_character.Equals(characterName))
+                    if (m_character.Equals( characterName))
                     {
                         foundCharacter = true;
                         m_level = level;
@@ -207,6 +207,7 @@ namespace BattleNet.Connections.Handlers
                 case 0x00:
                     Logger.Write("Successfully joined the game");
                     break;
+                case 0x12: break; //message of the day
                 case 0x29: break;
                 case 0x2A: break;
                 case 0x2B:
@@ -276,6 +277,8 @@ namespace BattleNet.Connections.Handlers
 
         protected void VoidRequest(byte type, List<byte> data)
         {
+            System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
+            //0x12 is MOTD
             Logger.Write("Unknown Packet 0x{0:X2} received!", type);
         }
     }

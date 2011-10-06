@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dictionary>
+  <item>
+    <key>
+      <string>cdkey_d2</string>
+    </key>
+    <value>
+      <string>your diablo 2 key</string>
+    </value>
+  </item>
+  <item>
+    <key>
+      <string>cdkey_d2exp</string>
+    </key>
+    <value>
+      <string>your diablo2 expansion cd key</string>
+    </value>
+  </item>
+    <item>
+    <key>
+      <string>resurrect_mercenary</string>
+    </key>
+    <value>
+      <string>false</string>
+    </value>
+  </item>
+  <item>
+    <key>
+      <string>battlenet_gateway</string>
+    </key>
+    <value>
+      <string>europe.battle.net</string>
+    </value>
+  </item>
+  <item>
+    <key>
+      <string>battlenet_account_name</string>
+    </key>
+    <value>
+      <string>your account name</string>
+    </value>
+  </item>
+  <item>
+    <key>
+      <string>battlenet_account_password</string>
+    </key>
+    <value>
+      <string>your password</string>
+    </value>
+  </item>
+  <item>
+    <key>
+      <string>battlenet_account_character</string>
+    </key>
+    <value>
+      <string>the character you want to bot</string>
+    </value>
+  </item>
+  <item>
+    <key>
+      <string>chicken_leave</string>
+    </key>
+    <value>
+      <string>70 (the health you leave a game)</string>
+    </value>
+  </item>
+  <item>
+    <key>
+      <string>chicken_pot</string>
+    </key>
+    <value>
+      <string>150 (the health you drink a potion)</string>
+    </value>
+  </item>
+  <item>
+    <key>
+      <string>game_difficulty</string>
+    </key>
+    <value>
+      <string>normal (or nightmare or hell)</string>
+    </value>
+  </item>
+</dictionary>

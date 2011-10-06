@@ -484,7 +484,7 @@ namespace BattleNet
 
         public bool ReviveMerc()
         {
-            if (!m_gameData.HasMerc)
+            if (!m_gameData.HasMerc && Settings.Instance.ResurrectMercenary())
             {
                 Logger.Write("Reviving Merc");
                 MoveTo(5082, 5080);

@@ -144,25 +144,37 @@ namespace BattleNet
         }
 
         #endregion
-        
+
         static void Main(string[] args)
         {
-            if (args.Length < 4)
-            {
-                System.Console.WriteLine("Missing command line arguments");
-                return;
-            }
             //Items.ItemTestHarness.Start();
             Logging.Logger.InitTrace();
             Pickit.InitializePickit();
-            Client client = new Client(System.Net.Dns.GetHostAddresses("useast.battle.net").First(),
-                                        null, args[0], args[1],
-                                        GameDifficulty.HELL,
-                                        args[2], args[3],
-                                        "Game.exe 03/09/10 04:10:51 61440", 250, 300);
+
+            
+            if (!Settings.Instance.init(args))
+            {
+                System.Console.WriteLine("could not parse config file");
+                return;
+            }
+
+            IPAddress server = System.Net.Dns.GetHostAddresses(Settings.Instance.BattlenetGateway()).First();
+
+            string character = Settings.Instance.BattlenetAccountCharacter();
+            string account = Settings.Instance.BattlenetAccountName();
+            
+            string password = Settings.Instance.BattlenetAccountPassword();
+
+            string d2cdkey = Settings.Instance.CdKeyD2();
+            string d2expcdkey = Settings.Instance.CdKeyD2Exp();
+            
+            uint chickenLife = (uint) Settings.Instance.ChickenLeave();
+            uint potLife = (uint) Settings.Instance.ChickenPot();
+
+            GameDifficulty gameDiffuculty = Settings.Instance.Difficulty();
+            Client client = new Client(server,
+                                        character, account, password, gameDiffuculty, d2cdkey, d2expcdkey, "Game.exe 03/09/10 04:10:51 61440", chickenLife, potLife);
             client.Connect();
         }
-        
-       
     }
 }

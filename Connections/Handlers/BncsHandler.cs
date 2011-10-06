@@ -137,8 +137,8 @@ namespace BattleNet.Connections.Handlers
 
             byte[] packet = m_connection.BuildPacket((byte)0x51, BitConverter.GetBytes(client_token), BitConverter.GetBytes(0x01000001), BitConverter.GetBytes(exe_checksum),
                             BitConverter.GetBytes(0x00000002), nulls, ten, six, classic_public, nulls, classic_hash, ten, BitConverter.GetBytes((UInt32)10),
-                            lod_public, nulls, lod_hash, System.Text.Encoding.UTF8.GetBytes(m_exeInfo), zero, System.Text.Encoding.ASCII.GetBytes("OmegaBot"), zero);
-            
+                            
+                            lod_public, nulls, lod_hash, System.Text.Encoding.UTF8.GetBytes(m_exeInfo), zero, System.Text.Encoding.ASCII.GetBytes(Settings.Instance.CdKeyUser()), zero);
             m_connection.Write(packet);
         }
 

@@ -98,6 +98,9 @@
     <Compile Include="Player.cs" />
     <Compile Include="PriorityQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Randomnes.cs" />
+    <Compile Include="SerializableDictionary.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="Skills.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="WorldObject.cs" />
