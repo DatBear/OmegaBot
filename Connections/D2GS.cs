@@ -252,7 +252,7 @@ namespace BattleNet.Connections
                     }
                     else if (plife <= m_gameThread.GameData.PotLife)
                     {
-                        Logger.Write("Attempting to use potion with {1} life left.", plife);
+                        Logger.Write("Attempting to use potion with {0} life left.", plife);
                         m_gameThread.UsePotion();
                     }
                 }
