@@ -271,6 +271,7 @@ namespace BattleNet.Connections.Handlers
         {
             String gamePass = Utils.RandomString(3);
             String gameName = Utils.RandomString(10);
+            Logger.Write("Create Game {0} with Password {1}", gameName, gamePass);
 
             MakeGame(difficulty, gameName, gamePass);
         }

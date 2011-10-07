@@ -110,27 +110,34 @@ namespace BattleNet
         protected AutoResetEvent m_makeNextGame;
         public void GameCreationThread()
         {
-            Logging.Logger.Write("Starting game creation thread");
-            m_makeNextGame = new AutoResetEvent(false);
-            m_nextGame = NextGameType.RUN_BOT;
-            m_makeNextGame.WaitOne();
-            while (true)
+            try
             {
-                Logging.Logger.Write("Signalled to start creating a game");
-                Thread.Sleep(35000);
-                switch(m_nextGame)
-                {
-                    case NextGameType.RUN_BOT:
-                        m_bnet.MakeRandomGame(m_difficulty);
-                        break;
-                    case NextGameType.ITEM_TRANSFER:
-                        //m_bnet.JoinGame();
-                        break;
-                    default:
-                        break;
-                }
-                Logging.Logger.Write("Waiting for next signal");
+                Logging.Logger.Write("Starting game creation thread");
+                m_makeNextGame = new AutoResetEvent(false);
+                m_nextGame = NextGameType.RUN_BOT;
                 m_makeNextGame.WaitOne();
+                while (true)
+                {
+                    Logging.Logger.Write("Signalled to start creating a game");
+                    Thread.Sleep(Settings.Instance.GameStartDelay() * 1000);
+                    switch (m_nextGame)
+                    {
+                        case NextGameType.RUN_BOT:
+                            m_bnet.MakeRandomGame(m_difficulty);
+                            break;
+                        case NextGameType.ITEM_TRANSFER:
+                            //m_bnet.JoinGame();
+                            break;
+                        default:
+                            break;
+                    }
+                    Logging.Logger.Write("Waiting for next signal");
+                    m_makeNextGame.WaitOne();
+                }
+            }
+            catch
+            {
+                System.Environment.Exit(3);
             }
         }
 
@@ -172,8 +179,7 @@ namespace BattleNet
             uint potLife = (uint) Settings.Instance.ChickenPot();
 
             GameDifficulty gameDiffuculty = Settings.Instance.Difficulty();
-            Client client = new Client(server,
-                                        character, account, password, gameDiffuculty, d2cdkey, d2expcdkey, "Game.exe 03/09/10 04:10:51 61440", chickenLife, potLife);
+            Client client = new Client(server, character, account, password, gameDiffuculty, d2cdkey, d2expcdkey, "Game.exe 03/09/10 04:10:51 61440", chickenLife, potLife);
             client.Connect();
         }
     }

@@ -216,6 +216,17 @@ namespace BattleNet
             return GetInt("chicken_pot", 350);
         }
 
+        public Int32 GameMinRuntime() {
+
+            return GetInt("game_min_runtime", 0);
+        }
+
+        public Int32 GameStartDelay()
+        {
+
+            return GetInt("game_start_delay", 35000);
+        }
+
         public Client.GameDifficulty Difficulty()
         {
             Client.GameDifficulty ret;

@@ -57,6 +57,14 @@ namespace BattleNet
 
                 Int32 endTime = Time() - startTime;
                 Logging.Logger.Write("Run took {0} seconds.", endTime);
+                if (endTime < Settings.Instance.GameMinRuntime())
+                {
+                    Int32 waitTime = Settings.Instance.GameMinRuntime() - endTime;
+
+                    Logging.Logger.Write("waiting {0} seconds.", waitTime);
+                    Thread.Sleep(waitTime * 1000);
+                }
+
                 m_startRun.WaitOne();
             }
         }
