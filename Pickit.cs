@@ -10,8 +10,8 @@ namespace BattleNet
     class Pickit
     {
 
-        protected static Dictionary<String, PickTest> m_pickitMap = new Dictionary<string, PickTest>();
-        public static Dictionary<String, PickTest> PickitMap { get { return m_pickitMap; } }
+        protected static Dictionary<String, PickTest> _pickitMap = new Dictionary<string, PickTest>();
+        public static Dictionary<String, PickTest> PickitMap { get { return _pickitMap; } }
 
         public delegate bool PickTest(Item x);
 
@@ -24,13 +24,13 @@ namespace BattleNet
             foreach (Item i in pickitList)
             {
                 Console.WriteLine("{0}: {1}, {2}, Ethereal:{3}, {4}", i.name, i.type, i.quality, i.ethereal, i.sockets == uint.MaxValue ? 0 : i.sockets);
-                if (!m_pickitMap.ContainsKey(i.type))
+                if (!_pickitMap.ContainsKey(i.type))
                 {
-                    m_pickitMap.Add(i.type, CreatePickTest(i));
+                    _pickitMap.Add(i.type, CreatePickTest(i));
                 }
                 else
                 {
-                    m_pickitMap[i.type] = AddPickTest(m_pickitMap[i.type], CreatePickTest(i));
+                    _pickitMap[i.type] = AddPickTest(_pickitMap[i.type], CreatePickTest(i));
                 }
             }
             fs.Close();
@@ -109,10 +109,10 @@ namespace BattleNet
             items.Add(item5);
             foreach (Item i in items)
             {
-                if (!m_pickitMap.ContainsKey(i.type) && i.type != "rvl" && i.type != "gld")
+                if (!_pickitMap.ContainsKey(i.type) && i.type != "rvl" && i.type != "gld")
                     break;
 
-                if (m_pickitMap[i.type](i))
+                if (_pickitMap[i.type](i))
                 {
                     Console.WriteLine("Picking up Item!");
                     Console.WriteLine("{0}: {1}, {2}, Ethereal:{3}, {4}", i.name, i.type, i.quality, i.ethereal, i.sockets);

@@ -7,8 +7,8 @@ namespace BattleNet
 {
     class WorldObject : Entity
     {
-        protected UInt16 m_type;
-        public UInt16 Type { get { return m_type; } set { m_type = value; } }
+        protected UInt16 _type;
+        public UInt16 Type { get { return _type; } set { _type = value; } }
 
         public WorldObject()
         { }
@@ -16,7 +16,7 @@ namespace BattleNet
         public WorldObject(UInt32 id, UInt16 type, UInt16 x, UInt16 y) :
             base(id, x, y)
         {
-            m_type = type;
+            _type = type;
         }
     }
 }

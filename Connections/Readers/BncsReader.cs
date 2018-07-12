@@ -17,16 +17,16 @@ namespace BattleNet.Connections.Readers
         {
             List<byte> bncsBuffer = new List<byte>();
             List<byte> data = new List<byte>();
-            while (m_connection.Socket.Connected)
+            while (_connection.Socket.Connected)
             {
-                if(!m_connection.GetPacket(ref bncsBuffer,ref data))
+                if(!_connection.GetPacket(ref bncsBuffer,ref data))
                 {
                     break;
                 }
-                lock (m_connection.Packets)
+                lock (_connection.Packets)
                 {
-                    m_connection.Packets.Enqueue(1, data);
-                    m_connection.PacketsReady.Set();
+                    _connection.Packets.Enqueue(1, data);
+                    _connection.PacketsReady.Set();
                 }
             }
         }

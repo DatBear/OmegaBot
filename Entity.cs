@@ -7,26 +7,26 @@ namespace BattleNet
 {
     class Entity
     {
-        protected Boolean m_initialized;
-        public Boolean Initialized { get { return m_initialized; } set { m_initialized = value; } }
+        protected Boolean _initialized;
+        public Boolean Initialized { get { return _initialized; } set { _initialized = value; } }
 
-        protected UInt32 m_id;
-        public UInt32 Id { get { return m_id; } set { m_id = value; } }
+        protected UInt32 _id;
+        public UInt32 Id { get { return _id; } set { _id = value; } }
 
-        protected Coordinate m_location;
-        public Coordinate Location { get { return m_location; } set { m_location = value; } }
+        protected Coordinate _location;
+        public Coordinate Location { get { return _location; } set { _location = value; } }
 
         public Entity()
         {
-            m_initialized = false;
-            m_location = new Coordinate(0, 0);
+            _initialized = false;
+            _location = new Coordinate(0, 0);
         }
 
         public Entity(UInt32 id, UInt16 x, UInt16 y)
         {
-            m_initialized = true;
-            m_id = id;
-            m_location = new Coordinate(x, y);
+            _initialized = true;
+            _id = id;
+            _location = new Coordinate(x, y);
         }
     
     }

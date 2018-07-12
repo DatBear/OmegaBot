@@ -8,32 +8,32 @@ namespace BattleNet
 {
     class DataManager
     {
-        private static DataManager sm_instance;
+        private static DataManager s_instance;
 
         public static DataManager Instance
         {
             get
             {
-                if (sm_instance == null)
+                if (s_instance == null)
                 {
-                    sm_instance = new DataManager();
+                    s_instance = new DataManager();
                 }
-                return sm_instance;
+                return s_instance;
             }
 
         }
-        public ItemDataType m_itemData;
-        public PlainTextDataType m_experiences,
-                            m_magicalPrefixes,
-                            m_magicalSuffixes,
-                            m_rarePrefixes,
-                            m_rareSuffixes,
-                            m_uniqueItems,
-                            m_monsterNames,
-                            m_monsterFields,
-                            m_superUniques,
-                            m_itemProperties,
-                            m_skills;
+        public ItemDataType _itemData;
+        public PlainTextDataType _experiences,
+                            _magicalPrefixes,
+                            _magicalSuffixes,
+                            _rarePrefixes,
+                            _rareSuffixes,
+                            _uniqueItems,
+                            _monsterNames,
+                            _monsterFields,
+                            _superUniques,
+                            _itemProperties,
+                            _skills;
 
         public DataManager(String dataDirectory = "data")
         {
@@ -48,23 +48,23 @@ namespace BattleNet
 		        "monster_names.txt",
 		        "monster_fields.txt",
 		        "super_uniques.txt",
-		        "item_properties.txt",
+		        "ite_properties.txt",
 		        "skills.txt"
             };
 
-            String itemDataFile = Path.Combine(dataDirectory, "item_data.txt");
-            m_itemData = new ItemDataType(itemDataFile);
-            m_experiences = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[0]));
-            m_magicalPrefixes = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[1]));
-            m_magicalSuffixes = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[2]));
-            m_rarePrefixes = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[3]));
-            m_rareSuffixes = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[4]));
-            m_uniqueItems = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[5]));
-            m_monsterNames = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[6]));
-            m_monsterFields = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[7]));
-            m_superUniques = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[8]));
-            m_itemProperties = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[9]));
-            m_skills = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[10]));
+            String itemDataFile = Path.Combine(dataDirectory, "ite_data.txt");
+            _itemData = new ItemDataType(itemDataFile);
+            _experiences = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[0]));
+            _magicalPrefixes = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[1]));
+            _magicalSuffixes = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[2]));
+            _rarePrefixes = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[3]));
+            _rareSuffixes = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[4]));
+            _uniqueItems = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[5]));
+            _monsterNames = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[6]));
+            _monsterFields = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[7]));
+            _superUniques = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[8]));
+            _itemProperties = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[9]));
+            _skills = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[10]));
 
             return;
         }
@@ -73,8 +73,8 @@ namespace BattleNet
 
     class ItemDataType
     {
-        private List<ItemEntry> m_items;
-        public List<ItemEntry> Items { get { return m_items; } }
+        private List<ItemEntry> _items;
+        public List<ItemEntry> Items { get { return _items; } }
 
         private ItemDataType()
         {
@@ -82,7 +82,7 @@ namespace BattleNet
 
         public ItemDataType(String file)
         {
-            m_items = new List<ItemEntry>();
+            _items = new List<ItemEntry>();
             Dictionary<String, Item.ClassificationType> classificationMap = new Dictionary<string, Item.ClassificationType>();
             classificationMap["Amazon Bow"] = Item.ClassificationType.amazon_bow;
             classificationMap["Amazon Javelin"] = Item.ClassificationType.amazon_javelin;
@@ -179,7 +179,7 @@ namespace BattleNet
                     if (!classificationMap.TryGetValue(classification_string, out classification))
                         throw new Exception("Unable to parse item classification");
                     ItemEntry i = new ItemEntry(name, code, classification, width, height, stackable, usable, throwable);
-                    m_items.Add(i);
+                    _items.Add(i);
                 }
                 catch (Exception e)
                 {
@@ -190,7 +190,7 @@ namespace BattleNet
 
         public Boolean Get(String code, out ItemEntry output)
         {
-            var items = from n in m_items where n.Type == code select n;
+            var items = from n in _items where n.Type == code select n;
 
             foreach (ItemEntry i in items)
             {
@@ -204,11 +204,11 @@ namespace BattleNet
     }
     class PlainTextDataType
     {
-        private List<String[]> m_lines;
+        private List<String[]> _lines;
 
         public PlainTextDataType(String file)
         {
-            m_lines = new List<string[]>();
+            _lines = new List<string[]>();
             List<string> lines = new List<string>();
 
             using (StreamReader r = new StreamReader(file))
@@ -223,18 +223,18 @@ namespace BattleNet
             foreach (String line in lines)
             {
                 String[] tokens = line.Split('|');
-                m_lines.Add(tokens);
+                _lines.Add(tokens);
             }
         }
 
         public Boolean Get(int offset, out String output)
         {
-            if (offset < 0 || offset >= m_lines.Count)
+            if (offset < 0 || offset >= _lines.Count)
             {
                 output = "";
                 return false;
             }
-            String[] line = m_lines[offset];
+            String[] line = _lines[offset];
             if (line.Length == 0)
                 output = "";
             else
@@ -244,32 +244,32 @@ namespace BattleNet
 
         public Boolean Get(int offset, out String[] output)
         {
-            if (offset < 0 || offset >= m_lines.Count)
+            if (offset < 0 || offset >= _lines.Count)
             {
                 output = null;
                 return false;
             }
-            output = m_lines[offset];
+            output = _lines[offset];
             return true;
         }
     }
 
     class BinaryDataType
     {
-        private List<byte> m_data;
+        private List<byte> _data;
         public BinaryDataType(String file)
         {
-            m_data = new List<byte>(File.ReadAllBytes(file));
+            _data = new List<byte>(File.ReadAllBytes(file));
         }
 
         public Boolean Get(int offset, int length, out byte[] output)
         {
-            if (offset < 0 || offset + length > m_data.Count)
+            if (offset < 0 || offset + length > _data.Count)
             {
                 output = null;
                 return false;
             }
-            output = m_data.GetRange(offset, length).ToArray();
+            output = _data.GetRange(offset, length).ToArray();
             return true;
         }
     }

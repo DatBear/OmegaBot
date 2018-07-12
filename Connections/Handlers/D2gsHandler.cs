@@ -17,18 +17,18 @@ namespace BattleNet.Connections.Handlers
         {
             firstInfoPacket = true;
             Logger.Write("D2GS handler started!");
-            while (m_connection.Socket.Connected)
+            while (_connection.Socket.Connected)
             {
-                if (m_connection.Packets.IsEmpty())
+                if (_connection.Packets.IsEmpty())
                 {
-                    //m_connection.PacketsReady.WaitOne();
+                    //_connection.PacketsReady.WaitOne();
                 }
                 else
                 {
                     List<byte> packet;
-                    lock (m_connection.Packets)
+                    lock (_connection.Packets)
                     {
-                        packet = m_connection.Packets.Dequeue();
+                        packet = _connection.Packets.Dequeue();
                     }
                     byte type = packet[0];
                     DispatchPacket(type)(type, packet);
@@ -94,10 +94,10 @@ namespace BattleNet.Connections.Handlers
             packet.AddRange(nulls);
             packet.AddRange(nulls);
             /*
-             m_connection.BuildPacket(0x6d, BitConverter.GetBytes((uint)System.Environment.TickCount),
+             _connection.BuildPacket(0x6d, BitConverter.GetBytes((uint)System.Environment.TickCount),
                               nulls, nulls);
              */
-            m_connection.Write(packet.ToArray());
+            _connection.Write(packet.ToArray());
         }
         public delegate void NewEntity(UInt16 type, WorldObject ent);
         public event NewEntity UpdateWorldObject;
@@ -117,7 +117,7 @@ namespace BattleNet.Connections.Handlers
         protected void StartPingThread(byte type, List<byte> data)
         {
             Logger.Write("Starting Ping thread");
-            m_connection.Stream.WriteByte(0x6b);
+            _connection.Stream.WriteByte(0x6b);
             StartPinging();
         }
 
@@ -136,9 +136,9 @@ namespace BattleNet.Connections.Handlers
 
             UpdateActData(currentAct, mapId, areaId);
             /*
-            if (!m_fullEntered)
+            if (!_fullEntered)
             {
-                m_fullEntered = true;
+                _fullEntered = true;
                 Logger.Write("Fully Entered Game.");
             }
             */
@@ -151,7 +151,7 @@ namespace BattleNet.Connections.Handlers
         {
             UInt32 id = BitConverter.ToUInt32(data.ToArray(), 2);
             UpdateNpcLife(id, data[8]);
-            //m_owner.BotGameData.Npcs[id].Life = data[8];
+            //_owner.BotGameData.Npcs[id].Life = data[8];
         }
 
         public delegate void PlayerPositionUpdate(UInt32 id, Coordinate coords, bool directoryKnown);
@@ -165,7 +165,7 @@ namespace BattleNet.Connections.Handlers
             Coordinate coords = new Coordinate(BitConverter.ToUInt16(packet, 7), BitConverter.ToUInt16(packet, 9));
             UpdatePlayerPosition(playerId, coords, true);
             /*
-            Player current_player = m_owner.BotGameData.GetPlayer(playerId);
+            Player current_player = _owner.BotGameData.GetPlayer(playerId);
             current_player.Location = new Coordinate(BitConverter.ToUInt16(packet, 7), BitConverter.ToUInt16(packet, 9));
             current_player.DirectoryKnown = true;
              */
@@ -178,7 +178,7 @@ namespace BattleNet.Connections.Handlers
             Coordinate coords = new Coordinate(BitConverter.ToUInt16(packet, 6), BitConverter.ToUInt16(packet, 8));
             UpdatePlayerPosition(id, coords, true);
             /*
-            Player current_player = m_owner.BotGameData.GetPlayer(id);
+            Player current_player = _owner.BotGameData.GetPlayer(id);
             current_player.Location = new Coordinate(BitConverter.ToUInt16(packet, 6), BitConverter.ToUInt16(packet, 8));
              */
         }
@@ -201,13 +201,13 @@ namespace BattleNet.Connections.Handlers
 
         public delegate void PlayerLevelSet(byte level);
         public event PlayerLevelSet SetPlayerLevel = delegate { };
-        byte m_level;
+        byte _level;
         protected void BaseAttribute(byte type, List<byte> data)
         {
             if (data[1] == 0x0c)
             {
                 SetPlayerLevel(data[2]);
-                m_level = data[2];
+                _level = data[2];
                 //Console.WriteLine("Setting Player Level: {0}", data[2]);
             }
         }
@@ -244,7 +244,7 @@ namespace BattleNet.Connections.Handlers
                 Logger.Write("{0}: [D2GS] Talking to an NPC.");
                 talkedToNpc = true;
                 UInt32 id = BitConverter.ToUInt32(data.ToArray(), 2);
-                m_connection.Write(m_connection.BuildPacket(0x2f, one, BitConverter.GetBytes(id)));
+                _connection.Write(_connection.BuildPacket(0x2f, one, BitConverter.GetBytes(id)));
                 NpcTalkedEvent();
             }
         }
@@ -255,7 +255,7 @@ namespace BattleNet.Connections.Handlers
         {
             UInt32 id = BitConverter.ToUInt32(data.ToArray(), 1);
             PlayerExited(id);
-            //m_owner.BotGameData.Players.Remove(id);
+            //_owner.BotGameData.Players.Remove(id);
         }
 
         public delegate void NewPlayer(Player newPlayer);
@@ -272,7 +272,7 @@ namespace BattleNet.Connections.Handlers
                 UInt32 level = BitConverter.ToUInt16(packet, 24);
                 Player newPlayer = new Player(name, id, charClass, level);
                 PlayerEnters(newPlayer);
-                //m_owner.BotGameData.Players.Add(id, newPlayer);
+                //_owner.BotGameData.Players.Add(id, newPlayer);
             }
         }
 
@@ -285,7 +285,7 @@ namespace BattleNet.Connections.Handlers
             String name = BitConverter.ToString(packet, 6, 15);
             UInt16 x = BitConverter.ToUInt16(packet, 22);
             UInt16 y = BitConverter.ToUInt16(packet, 24);
-            Player newPlayer = new Player(name, id, charClass, m_level, x, y);
+            Player newPlayer = new Player(name, id, charClass, _level, x, y);
             me = newPlayer;
             InitMe(me);
         }
@@ -382,10 +382,10 @@ namespace BattleNet.Connections.Handlers
 
             //String name = System.Text.Encoding.ASCII.GetString(packet, offset, 15);
             /*
-            if (name.Substring(0, m_owner.Me.Name.Length) == m_owner.BotGameData.Me.Name)
+            if (name.Substring(0, _owner.Me.Name.Length) == _owner.BotGameData.Me.Name)
             {
                 Logger.Write("Received new portal id");
-                m_owner.BotGameData.Me.PortalId = BitConverter.ToUInt32(packet, 21);
+                _owner.BotGameData.Me.PortalId = BitConverter.ToUInt32(packet, 21);
             }
              */
         }
@@ -471,7 +471,7 @@ namespace BattleNet.Connections.Handlers
 
             String[] entries;
 
-            if (!DataManager.Instance.m_monsterFields.Get(npctype, out entries))
+            if (!DataManager.Instance._monsterFields.Get(npctype, out entries))
                 Logger.Write("Failed to read monstats data for NPC of type {0}", type);
             if (entries.Length != informationLength)
                 Logger.Write("Invalid monstats entry for NPC of type {0}", type);
@@ -516,7 +516,7 @@ namespace BattleNet.Connections.Handlers
                 {
                     output.SuperUniqueId = br.ReadBitsLittleEndian(16);
                     String name;
-                    if (!DataManager.Instance.m_superUniques.Get(output.SuperUniqueId, out name))
+                    if (!DataManager.Instance._superUniques.Get(output.SuperUniqueId, out name))
                     {
                         Logger.Write("Failed to lookup super unique monster name for {0}", output.SuperUniqueId);
                         output.Name = "invalid";
@@ -549,7 +549,7 @@ namespace BattleNet.Connections.Handlers
             if (lookupName)
             {
                 String name;
-                if (!DataManager.Instance.m_monsterNames.Get((int)output.Type, out name))
+                if (!DataManager.Instance._monsterNames.Get((int)output.Type, out name))
                     Console.WriteLine("Failed to Look up monster name for {0}", output.Type);
                 else
                     output.Name = name;

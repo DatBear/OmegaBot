@@ -51,97 +51,97 @@ namespace BattleNet
          * 
          */
         public bool InGame;
-        private CharacterSkillSetupType m_skillSetup;
-        public CharacterSkillSetupType CharacterSkillSetup { get { return m_skillSetup; } set { m_skillSetup = value; } }
+        private CharacterSkillSetupType _skillSetup;
+        public CharacterSkillSetupType CharacterSkillSetup { get { return _skillSetup; } set { _skillSetup = value; } }
 
-        protected Globals.ActType m_currentAct;
-        public Globals.ActType CurrentAct { get { return m_currentAct; } set { m_currentAct = value; } }
+        protected Globals.ActType _currentAct;
+        public Globals.ActType CurrentAct { get { return _currentAct; } set { _currentAct = value; } }
 
-        protected Int32 m_mapId;
-        public Int32 MapId { get { return m_mapId; } set { m_mapId = value; } }
-        protected Int32 m_areaId;
-        public Int32 AreaId { get { return m_areaId; } set { m_areaId = value; } }
+        protected Int32 _mapId;
+        public Int32 MapId { get { return _mapId; } set { _mapId = value; } }
+        protected Int32 _areaId;
+        public Int32 AreaId { get { return _areaId; } set { _areaId = value; } }
 
-        protected Boolean m_fullyEnteredGame;
-        public Boolean FullyEnteredGame { get { return m_fullyEnteredGame; } set { m_fullyEnteredGame = value; } }
+        protected Boolean _fullyEnteredGame;
+        public Boolean FullyEnteredGame { get { return _fullyEnteredGame; } set { _fullyEnteredGame = value; } }
 
-        protected Boolean m_talkedToNpc;
-        public Boolean TalkedToNpc { get { return m_talkedToNpc; } set { m_talkedToNpc = value; } }
+        protected Boolean _talkedToNpc;
+        public Boolean TalkedToNpc { get { return _talkedToNpc; } set { _talkedToNpc = value; } }
 
-        protected Int32 m_lastTeleport;
-        public Int32 LastTeleport { get { return m_lastTeleport; } set { m_lastTeleport = value; } }
+        protected Int32 _lastTeleport;
+        public Int32 LastTeleport { get { return _lastTeleport; } set { _lastTeleport = value; } }
 
-        protected UInt32 m_experience;
-        public UInt32 Experience { get { return m_experience; } set { m_experience = value; } }
+        protected UInt32 _experience;
+        public UInt32 Experience { get { return _experience; } set { _experience = value; } }
 
-        protected UInt32 m_chickenLife;
-        public UInt32 ChickenLife { get { return m_chickenLife; } set { m_chickenLife = value; } }
+        protected UInt32 _chickenLife;
+        public UInt32 ChickenLife { get { return _chickenLife; } set { _chickenLife = value; } }
 
-        protected UInt32 m_potLife;
-        public UInt32 PotLife { get { return m_potLife; } set { m_potLife = value; } }
+        protected UInt32 _potLife;
+        public UInt32 PotLife { get { return _potLife; } set { _potLife = value; } }
 
-        protected UInt32 m_rightSkill;
-        public UInt32 RightSkill { get { return m_rightSkill; } set { m_rightSkill = value; } }
+        protected UInt32 _rightSkill;
+        public UInt32 RightSkill { get { return _rightSkill; } set { _rightSkill = value; } }
 
-        protected WorldObject m_rogueEncampmentWp;
-        public WorldObject RogueEncampmentWp { get { return m_rogueEncampmentWp; } set { m_rogueEncampmentWp = value; } }
+        protected WorldObject _rogueEncampmentWp;
+        public WorldObject RogueEncampmentWp { get { return _rogueEncampmentWp; } set { _rogueEncampmentWp = value; } }
 
-        protected WorldObject m_redPortal;
-        public WorldObject RedPortal { get { return m_redPortal; } set { m_redPortal = value; } }
+        protected WorldObject _redPortal;
+        public WorldObject RedPortal { get { return _redPortal; } set { _redPortal = value; } }
 
-        protected Player m_me;
-        public Player Me { get { return m_me; } set { m_me = value; } }
+        protected Player _me;
+        public Player Me { get { return _me; } set { _me = value; } }
 
-        private Dictionary<Skills.Type, UInt32> m_skillLevels;
-        public Dictionary<Skills.Type, UInt32> SkillLevels { get { return m_skillLevels; } set { m_skillLevels = value; } }
+        private Dictionary<Skills.Type, UInt32> _skillLevels;
+        public Dictionary<Skills.Type, UInt32> SkillLevels { get { return _skillLevels; } set { _skillLevels = value; } }
 
-        private Dictionary<Skills.Type, UInt32> m_itemSkillLevels;
-        public Dictionary<Skills.Type, UInt32> ItemSkillLevels { get { return m_itemSkillLevels; } set { m_itemSkillLevels = value; } }
+        private Dictionary<Skills.Type, UInt32> _itemSkillLevels;
+        public Dictionary<Skills.Type, UInt32> ItemSkillLevels { get { return _itemSkillLevels; } set { _itemSkillLevels = value; } }
 
-        private Dictionary<UInt32, Player> m_players;
-        public Dictionary<UInt32, Player> Players { get { return m_players; } set { m_players = value; } }
+        private Dictionary<UInt32, Player> _players;
+        public Dictionary<UInt32, Player> Players { get { return _players; } set { _players = value; } }
 
-        private Dictionary<UInt32, NpcEntity> m_npcs;
-        public Dictionary<UInt32, NpcEntity> Npcs { get { return m_npcs; } set { m_npcs = value; } }
+        private Dictionary<UInt32, NpcEntity> _npcs;
+        public Dictionary<UInt32, NpcEntity> Npcs { get { return _npcs; } set { _npcs = value; } }
 
-        private Dictionary<UInt32, WorldObject> m_objects;
-        public Dictionary<UInt32, WorldObject> WorldObjects { get { return m_objects; } set { m_objects = value; } }
+        private Dictionary<UInt32, WorldObject> _objects;
+        public Dictionary<UInt32, WorldObject> WorldObjects { get { return _objects; } set { _objects = value; } }
 
-        private Dictionary<UInt32, Item> m_items;
-        public Dictionary<UInt32, Item> Items { get { return m_items; } set { m_items = value; } }
+        private Dictionary<UInt32, Item> _items;
+        public Dictionary<UInt32, Item> Items { get { return _items; } set { _items = value; } }
 
-        private Container m_inventory;
-        public Container Inventory { get { return m_inventory; } set { m_inventory = value; } }
+        private Container _inventory;
+        public Container Inventory { get { return _inventory; } set { _inventory = value; } }
 
-        private Container m_stash;
-        public Container Stash { get { return m_stash; } set { m_stash = value; } }
+        private Container _stash;
+        public Container Stash { get { return _stash; } set { _stash = value; } }
 
-        private Container m_cube;
-        public Container Cube { get { return m_cube; } set { m_cube = value; } }
+        private Container _cube;
+        public Container Cube { get { return _cube; } set { _cube = value; } }
 
-        private Container m_belt;
-        public Container Belt { get { return m_belt; } set { m_belt = value; } }
+        private Container _belt;
+        public Container Belt { get { return _belt; } set { _belt = value; } }
 
-        private Int32 m_malahId;
-        public Int32 MalahId { get { return m_malahId; } set { m_malahId = value; } }
+        private Int32 _malahId;
+        public Int32 MalahId { get { return _malahId; } set { _malahId = value; } }
 
-        private UInt32 m_currentLife;
-        public UInt32 CurrentLife { get { return m_currentLife; } set { m_currentLife = value; } }
+        private UInt32 _currentLife;
+        public UInt32 CurrentLife { get { return _currentLife; } set { _currentLife = value; } }
 
-        protected Boolean m_firstNpcInfoPacket;
-        public Boolean FirstNpcInfoPacket { get { return m_firstNpcInfoPacket; } set { m_firstNpcInfoPacket = value; } }
+        protected Boolean _firstNpcInfoPacket;
+        public Boolean FirstNpcInfoPacket { get { return _firstNpcInfoPacket; } set { _firstNpcInfoPacket = value; } }
 
-        private Int32 m_attackSinceLastTeleport;
-        public Int32 AttacksSinceLastTeleport { get { return m_attackSinceLastTeleport; } set { m_attackSinceLastTeleport = value; } }
+        private Int32 _attackSinceLastTeleport;
+        public Int32 AttacksSinceLastTeleport { get { return _attackSinceLastTeleport; } set { _attackSinceLastTeleport = value; } }
 
-        private Int32 m_weaponSet;
-        public Int32 WeaponSet { get { return m_weaponSet; } set { m_weaponSet = value; } }
+        private Int32 _weaponSet;
+        public Int32 WeaponSet { get { return _weaponSet; } set { _weaponSet = value; } }
 
-        protected Boolean m_hasMerc;
-        public Boolean HasMerc { get { return m_hasMerc; } set { m_hasMerc = value; } }
+        protected Boolean _hasMerc;
+        public Boolean HasMerc { get { return _hasMerc; } set { _hasMerc = value; } }
 
-        private Int32 m_lastTimestamp;
-        public Int32 LastTimestamp { get { return m_lastTimestamp; } set { m_lastTimestamp = value; } }
+        private Int32 _lastTimestamp;
+        public Int32 LastTimestamp { get { return _lastTimestamp; } set { _lastTimestamp = value; } }
 
 
         public void Init()
@@ -153,22 +153,19 @@ namespace BattleNet
             LastTeleport = 0;
             Experience = 0;
             Me = new Player();
-            Logging.Logger.Write("Reset self");
+            Logging.Logger.Write("Reset GameData");
 
             SkillLevels.Clear();
             ItemSkillLevels.Clear();
-            Logging.Logger.Write("Cleared Skills");
             Players.Clear();
-            Logging.Logger.Write("Cleared Players");
             Npcs.Clear();
-            Logging.Logger.Write("Cleared Npcs");
             Items.Clear();
             WorldObjects.Clear();
 
             Inventory = new Container("Inventory", GameData.InventoryWidth, GameData.InventoryHeight);
             Stash = new Container("Stash", GameData.StashWidth, GameData.StashHeight);
             Cube = new Container("Cube", GameData.CubeWidth, GameData.CubeHeight);
-            Belt = new Container("Belt", 4, 4);
+            Belt = new Container("Belt", 4, 4);//todo depend on belt type...
 
             MalahId = 0;
             CurrentLife = 0;
@@ -185,20 +182,20 @@ namespace BattleNet
          */
         public Player GetPlayer(UInt32 id)
         {
-            if (id == m_me.Id)
-                return m_me;
+            if (id == _me.Id)
+                return _me;
             else
             {
                 Player temp;
-                bool success = m_players.TryGetValue(id, out temp);
+                bool success = _players.TryGetValue(id, out temp);
 
                 if (success)
                     return temp;
                 else
                 {
-                    m_players.Add(id, new Player());
-                    m_players[id].Id = id;
-                    return m_players[id];
+                    _players.Add(id, new Player());
+                    _players[id].Id = id;
+                    return _players[id];
                 }
             }
         }

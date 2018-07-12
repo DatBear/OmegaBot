@@ -8,18 +8,18 @@ namespace BattleNet
 {
     class BitReader
     {
-        private BitArray m_bits;
-        private int m_offset;
+        private BitArray _bits;
+        private int _offset;
 
         public BitReader(byte[] bytes)
         {
-            m_bits = new BitArray(bytes);
-            m_offset = 0;
+            _bits = new BitArray(bytes);
+            _offset = 0;
         }
 
         public Boolean ReadBit()
         {
-            return m_bits[m_offset++];
+            return _bits[_offset++];
         }
 
         public Int32 Read(int length)

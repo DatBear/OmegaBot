@@ -25,20 +25,20 @@ namespace BattleNet.Connections
 
         public override bool Init(IPAddress server, ushort port, List<byte> data = null)
         {
-            //m_owner.GameRequestId = 0x02;
-            //m_owner.InGame = false;
+            //_owner.GameRequestId = 0x02;
+            //_owner.InGame = false;
             Logging.Logger.Write("[BNCS] Connecting to {0}:{1}", server, port);
             // Establish connection
-            m_socket.Connect(server, port);
-            m_stream = m_socket.GetStream();
-            if (!m_stream.CanWrite)
+            _socket.Connect(server, port);
+            _stream = _socket.GetStream();
+            if (!_stream.CanWrite)
             {
                 Logging.Logger.Write("Failed To connect to {0}:{1}", server, port);
                 return false;
             }
 
-            m_stream.WriteByte(0x01);
-            m_stream.Write(AuthInfoPacket, 0, AuthInfoPacket.Length);
+            _stream.WriteByte(0x01);
+            _stream.Write(AuthInfoPacket, 0, AuthInfoPacket.Length);
             OnStartThread();
             return true;
         }
@@ -51,12 +51,12 @@ namespace BattleNet.Connections
                 {
                     byte temp = 0;
 
-                    temp = (byte)m_stream.ReadByte();
+                    temp = (byte)_stream.ReadByte();
                     bncsBuffer.Add(temp);
                 }
                 catch
                 {
-                    //Console.WriteLine("\n{0}: [BNCS] Disconnected From BNCS", m_owner.Account);
+                    //Console.WriteLine("\n{0}: [BNCS] Disconnected From BNCS", _owner.Account);
                     Kill();
                     return false;
                 }
@@ -71,7 +71,7 @@ namespace BattleNet.Connections
             {
                 try
                 {
-                    byte temp = (byte)m_stream.ReadByte();
+                    byte temp = (byte)_stream.ReadByte();
                     bncsBuffer.Add(temp);
                 }
                 catch

@@ -15,11 +15,11 @@ namespace BattleNet
     {
 #region Members
 
-        Bnet m_bnet;
-        D2GS m_d2gs;
-        GameDifficulty m_difficulty;
+        Bnet _bnet;
+        D2GS _d2gs;
+        GameDifficulty _difficulty;
 
-        Thread m_gameCreationThread;
+        Thread _gameCreationThread;
 #endregion
 
 #region Constructors
@@ -29,28 +29,28 @@ namespace BattleNet
                       UInt32 chickenLife, UInt32 potLife)
         {
             // Create objects
-            m_status = Status.STATUS_UNINITIALIZED;
-            m_difficulty = difficulty;
-            m_d2gs = new D2GS(character, account, chickenLife, potLife);
-            m_bnet = new Bnet(server, character, account, password, 
+            _status = Status.STATUS_UNINITIALIZED;
+            _difficulty = difficulty;
+            _d2gs = new D2GS(character, account, chickenLife, potLife);
+            _bnet = new Bnet(server, character, account, password, 
                               difficulty, classicKey, expansionKey, exeInfo);
 
-            m_gameCreationThread = new Thread(GameCreationThread);
+            _gameCreationThread = new Thread(GameCreationThread);
 
-            m_bnet.SubscribeStatusUpdates(UpdateStatus);
-            m_bnet.SubscribeGameServerStart(StartGameServer);
-            m_bnet.SubscribeClassByteUpdate(m_d2gs.UpdateClassByte);
-            m_bnet.SubscribeGameCreationThread(MakeNextGame);
-            m_bnet.SubscribeCharacterNameUpdate(m_d2gs.UpdateCharacterName);
-            m_d2gs.SubscribeNextGameEvent(MakeNextGame);
-            m_gameCreationThread.Name = account + "[CRTN]: ";
-            m_gameCreationThread.Start();
+            _bnet.SubscribeStatusUpdates(UpdateStatus);
+            _bnet.SubscribeGameServerStart(StartGameServer);
+            _bnet.SubscribeClassByteUpdate(_d2gs.UpdateClassByte);
+            _bnet.SubscribeGameCreationThread(MakeNextGame);
+            _bnet.SubscribeCharacterNameUpdate(_d2gs.UpdateCharacterName);
+            _d2gs.SubscribeNextGameEvent(MakeNextGame);
+            _gameCreationThread.Name = account + "[CRTN]: ";
+            _gameCreationThread.Start();
         }
 
 #endregion
 
-        protected Status m_status;
-        protected NextGameType m_nextGame;
+        protected Status _status;
+        protected NextGameType _nextGame;
 
 #region Enumerations
 
@@ -65,14 +65,14 @@ namespace BattleNet
             STATUS_BANNED_EXP_CD_KEY,
             STATUS_LOGIN_ERROR,
             STATUS_MCP_LOGON_FAIL,
-            STATUS_REALM_DOWN,
+            STATUS_REAL_DOWN,
             STATUS_ON_MCP,
             STATUS_NOT_IN_GAME
         };
         
         public enum NextGameType
         {
-            ITEM_TRANSFER,
+            ITE_TRANSFER,
             RUN_BOT
         };
 
@@ -88,51 +88,51 @@ namespace BattleNet
         protected void UpdateStatus(Status status)
         {
             Logging.Logger.Write("Status updated: {0}", status);
-            m_status = status;
+            _status = status;
         }
 
         protected void StartGameServer(IPAddress ip, List<byte> hash, List<byte> token)
         {
-            m_d2gs.SetGSInfo(hash, token);
-            m_d2gs.Init(ip, Globals.GsPort, null);
+            _d2gs.SetGSInfo(hash, token);
+            _d2gs.Init(ip, Globals.GsPort, null);
         }
 
         public void Connect()
         {
-            m_bnet.Connect();
+            _bnet.Connect();
         }
 
         protected void MakeNextGame()
         {
-            m_makeNextGame.Set();
+            _makeNextGame.Set();
         }
 
-        protected AutoResetEvent m_makeNextGame;
+        protected AutoResetEvent _makeNextGame;
         public void GameCreationThread()
         {
             try
             {
                 Logging.Logger.Write("Starting game creation thread");
-                m_makeNextGame = new AutoResetEvent(false);
-                m_nextGame = NextGameType.RUN_BOT;
-                m_makeNextGame.WaitOne();
+                _makeNextGame = new AutoResetEvent(false);
+                _nextGame = NextGameType.RUN_BOT;
+                _makeNextGame.WaitOne();
                 while (true)
                 {
                     Logging.Logger.Write("Signalled to start creating a game");
                     Thread.Sleep(Settings.Instance.GameStartDelay() * 1000);
-                    switch (m_nextGame)
+                    switch (_nextGame)
                     {
                         case NextGameType.RUN_BOT:
-                            m_bnet.MakeRandomGame(m_difficulty);
+                            _bnet.MakeRandomGame(_difficulty);
                             break;
-                        case NextGameType.ITEM_TRANSFER:
-                            //m_bnet.JoinGame();
+                        case NextGameType.ITE_TRANSFER:
+                            //_bnet.JoinGame();
                             break;
                         default:
                             break;
                     }
                     Logging.Logger.Write("Waiting for next signal");
-                    m_makeNextGame.WaitOne();
+                    _makeNextGame.WaitOne();
                 }
             }
             catch
@@ -147,7 +147,7 @@ namespace BattleNet
 
         void IDisposable.Dispose()
         {
-            m_bnet.Close();
+            _bnet.Close();
         }
 
         #endregion

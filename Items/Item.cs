@@ -182,7 +182,7 @@ namespace BattleNet
 
         public UInt32 indestructible;
         public UInt32 durability;
-        public UInt32 maximum_durability;
+        public UInt32 maximu_durability;
 
         
 
@@ -201,7 +201,7 @@ namespace BattleNet
 
         public class PropertyType
         {
-            item_stat_type stat;
+            ite_stat_type stat;
             Int32 value;
 
             UInt32 minimum;
@@ -216,7 +216,7 @@ namespace BattleNet
             UInt32 monster;
 
             UInt32 charges;
-            UInt32 maximum_charges;
+            UInt32 maximu_charges;
 
             UInt32 skill_chance;
 
@@ -297,26 +297,26 @@ namespace BattleNet
             drop_to_ground = 2,
             on_ground = 3,
             put_in_container = 4,
-            remove_from_container = 5,
+            remove_fro_container = 5,
             equip = 6,
             indirectly_swap_body_item = 7,
             unequip = 8,
             swap_body_item = 9,
             add_quantity = 0x0A,
             add_to_shop = 0x0B,
-            remove_from_shop = 0x0C,
+            remove_fro_shop = 0x0C,
             swap_in_container = 0x0D,
             put_in_belt = 0x0E,
-            remove_from_belt = 0x0F,
+            remove_fro_belt = 0x0F,
             swap_in_belt = 0x10,
             auto_unequip = 0x11,
             to_cursor = 0x12,
-            item_in_socket = 0x13,
+            ite_in_socket = 0x13,
             update_stats = 0x15,
             weapon_switch = 0x17
         };
 
-        public enum item_container_gc_type
+        public enum ite_container_gc_type
         {
             inventory = 0,
             trade = 2,
@@ -324,7 +324,7 @@ namespace BattleNet
             stash = 4,
         };
 
-        public enum item_destination_type
+        public enum ite_destination_type
         {
             unspecified = 0,
             equipment = 1,
@@ -410,7 +410,7 @@ namespace BattleNet
             wand
         };
 
-        public enum item_stat_type
+        public enum ite_stat_type
         {
             strength,
             energy,
@@ -419,24 +419,24 @@ namespace BattleNet
             all_attributes,
             new_skills,
             life,
-            maximum_life,
+            maximu_life,
             mana,
-            maximum_mana,
+            maximu_mana,
             stamina,
-            maximum_stamina,
+            maximu_stamina,
             level,
             experience,
             gold,
             bank,
             enhanced_defense,
-            enhanced_maximum_damage,
-            enhanced_minimum_damage,
+            enhanced_maximu_damage,
+            enhanced_minimu_damage,
             attack_rating,
             increased_blocking,
-            minimum_damage,
-            maximum_damage,
-            secondary_minimum_damage,
-            secondary_maximum_damage,
+            minimu_damage,
+            maximu_damage,
+            secondary_minimu_damage,
+            secondary_maximu_damage,
             enhanced_damage,
             mana_recovery,
             mana_recovery_bonus,
@@ -450,34 +450,34 @@ namespace BattleNet
             magical_damage_reduction,
             damage_reduction_percent,
             magical_damage_reduction_percent,
-            maximum_magical_damage_reduction_percent,
+            maximu_magical_damage_reduction_percent,
             fire_resistance,
-            maximum_fire_resistance,
+            maximu_fire_resistance,
             lightning_resistance,
-            maximum_lightning_resistance,
+            maximu_lightning_resistance,
             cold_resistance,
-            maximum_cold_resistance,
+            maximu_cold_resistance,
             poison_resistance,
-            maximum_poison_resistance,
+            maximu_poison_resistance,
             damage_aura,
-            minimum_fire_damage,
-            maximum_fire_damage,
-            minimum_lightning_damage,
-            maximum_lightning_damage,
-            minimum_magical_damage,
-            maximum_magical_damage,
-            minimum_cold_damage,
-            maximum_cold_damage,
+            minimu_fire_damage,
+            maximu_fire_damage,
+            minimu_lightning_damage,
+            maximu_lightning_damage,
+            minimu_magical_damage,
+            maximu_magical_damage,
+            minimu_cold_damage,
+            maximu_cold_damage,
             cold_damage_length,
-            minimum_poison_damage,
-            maximum_poison_damage,
+            minimu_poison_damage,
+            maximu_poison_damage,
             poison_damage_length,
-            minimum_life_stolen_per_hit,
-            maximum_life_stolen_per_hit,
-            minimum_mana_stolen_per_hit,
-            maximum_mana_stolen_per_hit,
-            minimum_stamina_drain,
-            maximum_stamina_drain,
+            minimu_life_stolen_per_hit,
+            maximu_life_stolen_per_hit,
+            minimu_mana_stolen_per_hit,
+            maximu_mana_stolen_per_hit,
+            minimu_stamina_drain,
+            maximu_stamina_drain,
             stun_length,
             velocity_percent,
             attack_rate,
@@ -485,9 +485,9 @@ namespace BattleNet
             quantity,
             value,
             durability,
-            maximum_durability,
+            maximu_durability,
             replenish_life,
-            enhanced_maximum_durability,
+            enhanced_maximu_durability,
             enhanced_life,
             enhanced_mana,
             attacker_takes_damage,
@@ -545,7 +545,7 @@ namespace BattleNet
             lifetap_level,
             thorns_percent,
             bone_armor,
-            maximum_bone_armor,
+            maximu_bone_armor,
             freezes_target,
             open_wounds,
             crushing_blow,
@@ -571,8 +571,8 @@ namespace BattleNet
             piercing_attack,
             fires_magic_arrows,
             fire_explosive_arrows,
-            minimum_throwing_damage,
-            maximum_throwing_damage,
+            minimu_throwing_damage,
+            maximu_throwing_damage,
             skill_hand_of_athena,
             skill_stamina_percent,
             skill_passive_stamina_percent,
@@ -589,7 +589,7 @@ namespace BattleNet
             target_1,
             gold_lost,
             conversion_level,
-            conversion_maximum_life,
+            conversion_maximu_life,
             unit_do_overlay,
             attack_rating_against_monster_type,
             damage_to_monster_type,
@@ -630,18 +630,18 @@ namespace BattleNet
             enhanced_defense_per_level,
             life_per_level,
             mana_per_level,
-            maximum_damage_per_level,
-            maximum_enhanced_damage_per_level,
+            maximu_damage_per_level,
+            maximu_enhanced_damage_per_level,
             strength_per_level,
             dexterity_per_level,
             energy_per_level,
             vitality_per_level,
             attack_rating_per_level,
             bonus_to_attack_rating_per_level,
-            maximum_cold_damage_per_level,
-            maximum_fire_damage_per_level,
-            maximum_lightning_damage_per_level,
-            maximum_poison_damage_per_level,
+            maximu_cold_damage_per_level,
+            maximu_fire_damage_per_level,
+            maximu_lightning_damage_per_level,
+            maximu_poison_damage_per_level,
             cold_resistance_per_level,
             fire_resistance_per_level,
             lightning_resistance_per_level,
@@ -652,7 +652,7 @@ namespace BattleNet
             poison_absorption_per_level,
             thorns_per_level,
             extra_gold_per_level,
-            better_chance_of_getting_magic_item_per_level,
+            better_chance_of_getting_magic_ite_per_level,
             stamina_regeneration_per_level,
             stamina_per_level,
             damage_to_demons_per_level,
@@ -684,18 +684,18 @@ namespace BattleNet
             enhanced_defense_per_time,
             life_per_time,
             mana_per_time,
-            maximum_damage_per_time,
-            maximum_enhanced_damage_per_time,
+            maximu_damage_per_time,
+            maximu_enhanced_damage_per_time,
             strength_per_time,
             dexterity_per_time,
             energy_per_time,
             vitality_per_time,
             attack_rating_per_time,
             chance_to_hit_per_time,
-            maximum_cold_damage_per_time,
-            maximum_fire_damage_per_time,
-            maximum_lightning_damage_per_time,
-            maximum_damage_per_poison,
+            maximu_cold_damage_per_time,
+            maximu_fire_damage_per_time,
+            maximu_lightning_damage_per_time,
+            maximu_damage_per_poison,
             cold_resistance_per_time,
             fire_resistance_per_time,
             lightning_resistance_per_time,
@@ -705,7 +705,7 @@ namespace BattleNet
             lightning_absorption_per_time,
             poison_absorption_per_time,
             extra_gold_per_time,
-            better_chance_of_getting_magic_item_per_time,
+            better_chance_of_getting_magic_ite_per_time,
             regenerate_stamina_per_time,
             stamina_per_time,
             damage_to_demons_per_time,
@@ -728,8 +728,8 @@ namespace BattleNet
             defense_vs_monsters,
             enhanced_defense_vs_monsters,
             fire_damage_length,
-            minimum_fire_damage_length,
-            maximum_fire_damage_length,
+            minimu_fire_damage_length,
+            maximu_fire_damage_length,
             progressive_damage,
             progressive_steal,
             progressive_other,
@@ -768,7 +768,7 @@ namespace BattleNet
             source_unit_type,
             source_unit_id,
             short_parameter_1,
-            quest_item_difficulty,
+            quest_ite_difficulty,
             passive_magical_damage_mastery,
             passive_magical_resistance_reduction
         };

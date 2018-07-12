@@ -7,21 +7,23 @@ namespace BattleNet.Connections
 {
     class GenericHandler
     {
-        static public readonly byte[] nulls = { 0x00, 0x00, 0x00, 0x00 };
-        static public readonly byte[] ten = { 0x10, 0x00, 0x00, 0x00 };
-        static public readonly byte[] six = { 0x06, 0x00, 0x00, 0x00 };
-        static public readonly byte[] zero = { 0x00 };
-        static public readonly byte[] one = { 0x01, 0x00, 0x00, 0x00 };
+        public static readonly byte[] Nulls = { 0x00, 0x00, 0x00, 0x00 };
+        public static readonly byte[] Ten = { 0x10, 0x00, 0x00, 0x00 };
+        public static readonly byte[] Six = { 0x06, 0x00, 0x00, 0x00 };
+        public static readonly byte[] Zero = { 0x00 };
+        public static readonly byte[] One = { 0x01, 0x00, 0x00, 0x00 };
 
-        static protected readonly String platform = "68XI", classic_id = "VD2D", lod_id = "PX2D";
+        protected static readonly String Platform = "68XI";
+        protected static readonly string ClassicId = "VD2D";
+        protected static readonly string LodId = "PX2D";
 
         public delegate void PacketDispatcher(byte command, params IEnumerable<byte>[] args);
         public event PacketDispatcher BuildDispatchPacket;
 
-        protected Connection m_connection;
+        protected readonly Connection Connection;
         public GenericHandler(Connection conn)
         {
-            m_connection = conn;
+            Connection = conn;
         }
 
         public delegate void StatusUpdaterHandler(Client.Status status);

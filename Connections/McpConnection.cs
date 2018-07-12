@@ -11,15 +11,15 @@ namespace BattleNet.Connections
         public override bool Init(IPAddress server, ushort port, List<byte> data)
         {
             Logging.Logger.Write("[MCP] Connecting to {0}:{1}", server, port);
-            m_socket.Connect(server, port);
-            m_stream = m_socket.GetStream();
-            if (!m_stream.CanWrite)
+            _socket.Connect(server, port);
+            _stream = _socket.GetStream();
+            if (!_stream.CanWrite)
             {
                 Logging.Logger.Write("Failed To connect to {0}:{1}", server, port);
                 return false;
             }
             
-            m_stream.WriteByte(0x01);
+            _stream.WriteByte(0x01);
             byte[] packet = BuildPacket((byte)0x01, data);
             Write(packet);
 
@@ -33,12 +33,12 @@ namespace BattleNet.Connections
             {
                 try
                 {
-                    byte temp = (byte)m_stream.ReadByte();
+                    byte temp = (byte)_stream.ReadByte();
                     mcpBuffer.Add(temp);
                 }
                 catch
                 {
-                    //Console.WriteLine("\n{0}: [MCP] Lost Connection to MCP", m_owner.Account);
+                    //Console.WriteLine("\n{0}: [MCP] Lost Connection to MCP", _owner.Account);
                     Kill();
                     return false;
                 }
@@ -53,12 +53,12 @@ namespace BattleNet.Connections
             {
                 try
                 {
-                    byte temp = (byte)m_stream.ReadByte();
+                    byte temp = (byte)_stream.ReadByte();
                     mcpBuffer.Add(temp);
                 }
                 catch
                 {
-                    //Console.WriteLine("\n{0}: [MCP] Lost Connection to MCP", m_owner.Account);
+                    //Console.WriteLine("\n{0}: [MCP] Lost Connection to MCP", _owner.Account);
                     Kill();
                     return false;
                 }

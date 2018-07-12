@@ -76,7 +76,7 @@ namespace BattleNet.Items
             }
             item.unspecified_directory = false;
 
-            if (item.action == (uint)Item.Action.add_to_shop || item.action == (uint)Item.Action.remove_from_shop)
+            if (item.action == (uint)Item.Action.add_to_shop || item.action == (uint)Item.Action.remove_fro_shop)
             {
                 long container = (long)(item.container);
                 container |= 0x80;
@@ -94,7 +94,7 @@ namespace BattleNet.Items
                     if (item.in_socket)
                         //y is ignored for this container type, x tells you the index
                         item.container = Item.ContainerType.item;
-                    else if (item.action == (uint)Item.Action.put_in_belt || item.action == (uint)Item.Action.remove_from_belt)
+                    else if (item.action == (uint)Item.Action.put_in_belt || item.action == (uint)Item.Action.remove_fro_belt)
                     {
                         item.container = Item.ContainerType.belt;
                         item.y = item.x / 4;
@@ -137,7 +137,7 @@ namespace BattleNet.Items
             item.type = System.Text.Encoding.ASCII.GetString(code_bytes).Substring(0, 3);
 
             ItemEntry entry;
-            if (!DataManager.Instance.m_itemData.Get(item.type, out entry))
+            if (!DataManager.Instance._itemData.Get(item.type, out entry))
             {
                 Console.WriteLine("Failed to look up item in item data table");
                 return true;
@@ -257,8 +257,8 @@ namespace BattleNet.Items
                 reader.Read(8);
             else if (item.is_armor || item.is_weapon)
             {
-                item.maximum_durability = (byte)reader.Read(8);
-                item.indestructible = (uint)((item.maximum_durability == 0) ? 1 : 0);
+                item.maximu_durability = (byte)reader.Read(8);
+                item.indestructible = (uint)((item.maximu_durability == 0) ? 1 : 0);
 
                 item.durability = (byte)reader.Read(8);
                 reader.ReadBit();

@@ -186,7 +186,6 @@
     <Content Include="data\unique_items.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="OmegaBot.xml" />
     <Content Include="pickit.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

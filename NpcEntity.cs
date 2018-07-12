@@ -7,47 +7,47 @@ namespace BattleNet
 {
     class NpcEntity : Entity
     {
-        protected String m_name;
-        public String Name { get { return m_name; } set { m_name = value; } } 
+        protected String _name;
+        public String Name { get { return _name; } set { _name = value; } } 
 
-        protected UInt32 m_type;
-        public UInt32 Type { get { return m_type; } set { m_type = value; } }
+        protected UInt32 _type;
+        public UInt32 Type { get { return _type; } set { _type = value; } }
 
-        protected UInt32 m_life;
-        public UInt32 Life { get { return m_life; } set { m_life = value; } }
+        protected UInt32 _life;
+        public UInt32 Life { get { return _life; } set { _life = value; } }
 
-        protected Coordinate m_targetLocation;
-        public Coordinate TargetLocation { get { return m_targetLocation; } set { m_targetLocation = value; } }
+        protected Coordinate _targetLocation;
+        public Coordinate TargetLocation { get { return _targetLocation; } set { _targetLocation = value; } }
 
-        protected Boolean m_moving;
-        public Boolean Moving { get { return m_moving; } set { m_moving = value; } }
+        protected Boolean _moving;
+        public Boolean Moving { get { return _moving; } set { _moving = value; } }
 
-        protected Boolean m_running;
-        public Boolean Running { get { return m_running; } set { m_running = value; } }
+        protected Boolean _running;
+        public Boolean Running { get { return _running; } set { _running = value; } }
 
-        protected Boolean m_hasFlags;
-        public Boolean HasFlags { get { return m_hasFlags; } set { m_hasFlags = value; } }
+        protected Boolean _hasFlags;
+        public Boolean HasFlags { get { return _hasFlags; } set { _hasFlags = value; } }
 
-        protected Boolean m_flag1;
-        public Boolean Champion { get { return m_flag1; } set { m_flag1 = value; } }
+        protected Boolean _flag1;
+        public Boolean Champion { get { return _flag1; } set { _flag1 = value; } }
 
-        protected Boolean m_flag2;
-        public Boolean Unique { get { return m_flag2; } set { m_flag2 = value; } }
+        protected Boolean _flag2;
+        public Boolean Unique { get { return _flag2; } set { _flag2 = value; } }
 
-        protected Boolean m_superUnique;
-        public Boolean SuperUnique { get { return m_superUnique; } set { m_superUnique = value; } }
+        protected Boolean _superUnique;
+        public Boolean SuperUnique { get { return _superUnique; } set { _superUnique = value; } }
 
-        protected Boolean m_isMinion;
-        public Boolean IsMinion { get { return m_isMinion; } set { m_isMinion = value; } }
+        protected Boolean _isMinion;
+        public Boolean IsMinion { get { return _isMinion; } set { _isMinion = value; } }
 
-        protected Boolean m_flag5;
-        public Boolean Ghostly { get { return m_flag5; } set { m_flag5= value; } }
+        protected Boolean _flag5;
+        public Boolean Ghostly { get { return _flag5; } set { _flag5= value; } }
 
-        protected Boolean m_isLightning;
-        public Boolean IsLightning { get { return m_isLightning; } set { m_isLightning = value; } }
+        protected Boolean _isLightning;
+        public Boolean IsLightning { get { return _isLightning; } set { _isLightning = value; } }
 
-        protected Int32 m_superUniqueId;
-        public Int32 SuperUniqueId { get { return m_superUniqueId; }  set { m_superUniqueId = value; } }
+        protected Int32 _superUniqueId;
+        public Int32 SuperUniqueId { get { return _superUniqueId; }  set { _superUniqueId = value; } }
 
         public NpcEntity()
         { }
@@ -55,10 +55,10 @@ namespace BattleNet
         public NpcEntity(UInt32 id, UInt32 type, UInt32 life, UInt16 x, UInt16 y) :
             base(id,x,y)
         {
-            m_type = type;
-            m_life = life;
-            m_hasFlags = false;
-            m_moving = false;
+            _type = type;
+            _life = life;
+            _hasFlags = false;
+            _moving = false;
         }
 
     }

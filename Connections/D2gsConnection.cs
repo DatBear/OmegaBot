@@ -16,14 +16,14 @@ namespace BattleNet.Connections
 
         public override bool Init(IPAddress server, ushort port, List<byte> data)
         {
-            m_socket.Close();
-            m_packets.Clear();
+            _socket.Close();
+            _packets.Clear();
             try
             {
                 Logging.Logger.Write("Connecting to {0}:{1}", server, port);
-                m_socket = new System.Net.Sockets.TcpClient();
-                m_socket.Connect(server, port);
-                m_stream = m_socket.GetStream();
+                _socket = new System.Net.Sockets.TcpClient();
+                _socket.Connect(server, port);
+                _stream = _socket.GetStream();
                 Logging.Logger.Write(" Connected");
             }
             catch

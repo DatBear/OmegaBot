@@ -9,23 +9,23 @@ namespace BattleNet.Connections.Handlers
 {
     class McpHandler : GenericDispatcher
     {
-        bool m_loggedIn;
-        String m_character;
-        byte m_classByte;
-        byte m_level;
-        String m_realm;
+        bool _loggedIn;
+        String _character;
+        byte _classByte;
+        byte _level;
+        String _realm;
 
-        Client.GameDifficulty m_difficulty;
+        Client.GameDifficulty _difficulty;
 
-        String m_gameName;
-        String m_gamePass;
+        String _gameName;
+        String _gamePass;
         public McpHandler(ref McpConnection conn, String character, Client.GameDifficulty difficulty)
             : base(conn)
         {
-            m_loggedIn = false;
-            m_character = character;
-            m_classByte = 0;
-            m_difficulty = difficulty;
+            _loggedIn = false;
+            _character = character;
+            _classByte = 0;
+            _difficulty = difficulty;
         }
 
         public delegate void SetByte(byte vbyte);
@@ -33,7 +33,7 @@ namespace BattleNet.Connections.Handlers
 
         void OnSetClassByte(byte classByte)
         {
-            m_classByte = classByte;
+            _classByte = classByte;
         }
 
         public delegate void D2gsStarter(IPAddress ip, List<byte> hash, List<byte> token);
@@ -41,20 +41,20 @@ namespace BattleNet.Connections.Handlers
 
         public void UpdateRealm(String realm)
         {
-            m_realm = realm;
+            _realm = realm;
         }
 
         public override void ThreadFunction()
         {
             Logger.Write("MCP handler started!");
-            while (m_connection.Socket.Connected)
+            while (_connection.Socket.Connected)
             {
-                m_connection.PacketsReady.WaitOne();
+                _connection.PacketsReady.WaitOne();
                 
                 List<byte> packet;
-                lock (m_connection.Packets)
+                lock (_connection.Packets)
                 {
-                    packet = m_connection.Packets.Dequeue();
+                    packet = _connection.Packets.Dequeue();
                 }
                 byte type = packet[2];
                 DispatchPacket(type)(type, packet);
@@ -94,7 +94,7 @@ namespace BattleNet.Connections.Handlers
                     break;
                 case 0x7f:
                     Logger.Write("Your IP has been temporarily banned");
-                    OnUpdateStatus(Client.Status.STATUS_REALM_DOWN);
+                    OnUpdateStatus(Client.Status.STATUS_REAL_DOWN);
                     break;
                 default:
                     break;
@@ -102,16 +102,16 @@ namespace BattleNet.Connections.Handlers
             if (result != 0)
                 return;
 
-            if (!m_loggedIn)
+            if (!_loggedIn)
             {
                 Logger.Write("Requesting Character list...");
-                byte[] packet = m_connection.BuildPacket(0x19, BitConverter.GetBytes(8));
-                m_connection.Write(packet);
+                byte[] packet = _connection.BuildPacket(0x19, BitConverter.GetBytes(8));
+                _connection.Write(packet);
             }
             else
             {
-                byte[] packet = m_connection.BuildPacket(0x07, System.Text.Encoding.ASCII.GetBytes(m_character), zero);
-                m_connection.Write(packet);
+                byte[] packet = _connection.BuildPacket(0x07, System.Text.Encoding.ASCII.GetBytes(_character), zero);
+                _connection.Write(packet);
             }
         }
         public delegate void CharacterUpdateDel(String chara);
@@ -128,7 +128,7 @@ namespace BattleNet.Connections.Handlers
                 bool foundCharacter = false;
                 bool selectFirstCharacter = false;
                 
-                //Console.WriteLine("{0}: [MCP] List of characters on this account", m_owner.Account);
+                //Console.WriteLine("{0}: [MCP] List of characters on this account", _owner.Account);
                 int offset = 11;
 
                 for (int i = 1; i <= count; i++)
@@ -148,17 +148,17 @@ namespace BattleNet.Connections.Handlers
                     String coreString = hardcore ? "Hardcore" : "Softcore";
                     String versionString = expansion ? "Expansion" : "Classic";
                     
-                    if (m_character == null && i == 1)
+                    if (_character == null && i == 1)
                     {
                         selectFirstCharacter = true;
-                        m_character = characterName;
-                        UpdateCharacterName(m_character);
+                        _character = characterName;
+                        UpdateCharacterName(_character);
                     }
 
-                    if (m_character.Equals( characterName))
+                    if (_character.Equals( characterName))
                     {
                         foundCharacter = true;
-                        m_level = level;
+                        _level = level;
                     }
                 }
 
@@ -168,8 +168,8 @@ namespace BattleNet.Connections.Handlers
                     return;
                 }
 
-                byte[] packet = m_connection.BuildPacket(0x07, System.Text.Encoding.ASCII.GetBytes(m_character), zero);
-                m_connection.Write(packet);
+                byte[] packet = _connection.BuildPacket(0x07, System.Text.Encoding.ASCII.GetBytes(_character), zero);
+                _connection.Write(packet);
             }
         }
 
@@ -178,22 +178,22 @@ namespace BattleNet.Connections.Handlers
             UInt32 result = BitConverter.ToUInt32(data.ToArray(), 3);
             if (result != 0)
             {
-                Logger.Write("Failed to log into character {0}", m_character);
+                Logger.Write("Failed to log into character {0}", _character);
                 throw new Exception();
             }
 
             BuildWritePacket(0x0b, System.Text.Encoding.ASCII.GetBytes(lod_id));
             byte[] comma = { 0x2C };
-            BuildWritePacket(0x0a, System.Text.Encoding.ASCII.GetBytes(m_character), 
-                                   zero, System.Text.Encoding.ASCII.GetBytes(m_realm), 
-                                   comma, System.Text.Encoding.ASCII.GetBytes(m_character), zero);
+            BuildWritePacket(0x0a, System.Text.Encoding.ASCII.GetBytes(_character), 
+                                   zero, System.Text.Encoding.ASCII.GetBytes(_realm), 
+                                   comma, System.Text.Encoding.ASCII.GetBytes(_character), zero);
 
-            if (!m_loggedIn)
+            if (!_loggedIn)
             {
-                byte[] packetc = m_connection.BuildPacket(0x12);
+                byte[] packetc = _connection.BuildPacket(0x12);
 
-                m_connection.Write(packetc);
-                m_loggedIn = true;
+                _connection.Write(packetc);
+                _loggedIn = true;
             }
             OnUpdateStatus(Client.Status.STATUS_NOT_IN_GAME);
         }
@@ -244,27 +244,27 @@ namespace BattleNet.Connections.Handlers
             }
             if (result == 0)
             {
-                m_connection.Write(m_connection.BuildPacket(0x04, BitConverter.GetBytes((ushort)2), 
-                                   System.Text.Encoding.ASCII.GetBytes(m_gameName), GenericHandler.zero,
-                                   System.Text.Encoding.ASCII.GetBytes(m_gamePass), GenericHandler.zero));
+                _connection.Write(_connection.BuildPacket(0x04, BitConverter.GetBytes((ushort)2), 
+                                   System.Text.Encoding.ASCII.GetBytes(_gameName), GenericHandler.zero,
+                                   System.Text.Encoding.ASCII.GetBytes(_gamePass), GenericHandler.zero));
             }
         }
 
         public void JoinGame(String gameName, String gamePass)
         {
-            m_connection.Write(m_connection.BuildPacket(0x04, BitConverter.GetBytes((ushort)2),
+            _connection.Write(_connection.BuildPacket(0x04, BitConverter.GetBytes((ushort)2),
                                System.Text.Encoding.ASCII.GetBytes(gameName), GenericHandler.zero,
                                System.Text.Encoding.ASCII.GetBytes(gamePass), GenericHandler.zero));
         }
 
         public void MakeGame(Client.GameDifficulty difficulty, String gameName, String gamePass)
         {
-            m_gameName = gameName;
-            m_gamePass = gamePass;
+            _gameName = gameName;
+            _gamePass = gamePass;
             byte[] temp = { 0x01, 0xff, 0x08 };
-            byte[] packet = m_connection.BuildPacket(0x03, BitConverter.GetBytes((UInt16)2), BitConverter.GetBytes(Utils.GetDifficulty(difficulty)), temp, System.Text.Encoding.ASCII.GetBytes(m_gameName), GenericHandler.zero,
-                            System.Text.Encoding.ASCII.GetBytes(m_gamePass), GenericHandler.zero, GenericHandler.zero);
-            m_connection.Write(packet);
+            byte[] packet = _connection.BuildPacket(0x03, BitConverter.GetBytes((UInt16)2), BitConverter.GetBytes(Utils.GetDifficulty(difficulty)), temp, System.Text.Encoding.ASCII.GetBytes(_gameName), GenericHandler.zero,
+                            System.Text.Encoding.ASCII.GetBytes(_gamePass), GenericHandler.zero, GenericHandler.zero);
+            _connection.Write(packet);
         }
 
         public void MakeRandomGame(Client.GameDifficulty difficulty)

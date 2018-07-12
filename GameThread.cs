@@ -11,17 +11,17 @@ namespace BattleNet
 {
     class GameThread
     {
-        private GameData m_gameData;
-        public GameData GameData { get { return m_gameData; } set { m_gameData = value; } }
+        private GameData _gameData;
+        public GameData GameData { get { return _gameData; } set { _gameData = value; } }
         
-        private D2gsConnection m_d2gsConnection;
+        private D2gsConnection _d2gsConnection;
 
         public GameThread(D2gsConnection connection, UInt32 chickenLife, UInt32 potLife)
         {
-            m_d2gsConnection = connection;
-            m_gameData = new GameData();
-            m_gameData.ChickenLife = chickenLife;
-            m_gameData.PotLife = potLife;
+            _d2gsConnection = connection;
+            _gameData = new GameData();
+            _gameData.ChickenLife = chickenLife;
+            _gameData.PotLife = potLife;
         }
 
         public static int Time()
@@ -29,12 +29,12 @@ namespace BattleNet
             return System.Environment.TickCount / 1000;
         }
 
-        public AutoResetEvent m_startRun;
+        public AutoResetEvent _startRun;
         public void BotThread()
         {
             Logging.Logger.Write("Starting Bot thread");
-            m_startRun = new AutoResetEvent(false);
-            m_startRun.WaitOne();
+            _startRun = new AutoResetEvent(false);
+            _startRun.WaitOne();
             while (true)
             {
                 Logging.Logger.Write("Signalled to start bot");
@@ -46,7 +46,7 @@ namespace BattleNet
 
                 MoveToAct5();
                 /*
-                if (m_gameData.WeaponSet != 0)
+                if (_gameData.WeaponSet != 0)
                     WeaponSwap();
                 */
                 DoPindle();
@@ -65,27 +65,27 @@ namespace BattleNet
                     Thread.Sleep(waitTime * 1000);
                 }
 
-                m_startRun.WaitOne();
+                _startRun.WaitOne();
             }
         }
 
         public void SendPacket(byte command, params IEnumerable<byte>[] args)
         {
-            m_d2gsConnection.Write(m_d2gsConnection.BuildPacket(command, args));
+            _d2gsConnection.Write(_d2gsConnection.BuildPacket(command, args));
         }
         public void SendPacket(byte[] packet)
         {
-            m_d2gsConnection.Write(packet);
+            _d2gsConnection.Write(packet);
         }
 
         public void LeaveGame()
         {
             Logging.Logger.Write("Leaving the game.");
-            m_d2gsConnection.Write(m_d2gsConnection.BuildPacket(0x69));
+            _d2gsConnection.Write(_d2gsConnection.BuildPacket(0x69));
 
             Thread.Sleep(500);
 
-            m_d2gsConnection.Kill();
+            _d2gsConnection.Kill();
             
             //Status = ClientStatus.STATUS_NOT_IN_GAME;
         }
@@ -98,28 +98,28 @@ namespace BattleNet
         public void MoveTo(Coordinate target)
         {
             int time = Time();
-            if (time - m_gameData.LastTeleport > 5)
+            if (time - _gameData.LastTeleport > 5)
             {
                 SendPacket(Actions.Relocate(target));             
-                m_gameData.LastTeleport = time;
+                _gameData.LastTeleport = time;
                 Thread.Sleep(120);
             }
             else
             {
-                double distance = m_gameData.Me.Location.Distance(target);
+                double distance = _gameData.Me.Location.Distance(target);
                 SendPacket(Actions.Run(target));
                 Thread.Sleep((int)(distance * 80));
             }
-            m_gameData.Me.Location = target;
+            _gameData.Me.Location = target;
         }
 
         public virtual void StashItems()
         {
             bool onCursor = false;
             List<Item> items;
-            lock (m_gameData.Items)
+            lock (_gameData.Items)
             {
-                items = new List<Item>(m_gameData.Items.Values);
+                items = new List<Item>(_gameData.Items.Values);
             }
             foreach (Item i in items)
             {
@@ -136,7 +136,7 @@ namespace BattleNet
                     continue;
 
                 Coordinate stashLocation;
-                if (!m_gameData.Stash.FindFreeSpace(i, out stashLocation))
+                if (!_gameData.Stash.FindFreeSpace(i, out stashLocation))
                 {
                     continue;
                 }
@@ -156,7 +156,7 @@ namespace BattleNet
 
         public bool SwitchSkill(uint skill)
         {
-            m_gameData.RightSkill = skill;
+            _gameData.RightSkill = skill;
             byte[] temp = { 0xFF, 0xFF, 0xFF, 0xFF };
             SendPacket(Actions.SwitchSkill(skill));
             Thread.Sleep(100);
@@ -165,10 +165,10 @@ namespace BattleNet
 
         public bool GetAliveNpc(String name, double range, out NpcEntity output)
         {
-            var n = (from npc in m_gameData.Npcs
+            var n = (from npc in _gameData.Npcs
                      where npc.Value.Name == name
                      && npc.Value.Life > 0
-                     && (range == 0 || range > m_gameData.Me.Location.Distance(npc.Value.Location))
+                     && (range == 0 || range > _gameData.Me.Location.Distance(npc.Value.Location))
                      select npc).FirstOrDefault();
             if (n.Value == null)
             {
@@ -181,7 +181,7 @@ namespace BattleNet
 
         public NpcEntity GetNpc(String name)
         {
-            NpcEntity npc = (from n in m_gameData.Npcs
+            NpcEntity npc = (from n in _gameData.Npcs
                              where n.Value.Name == name
                              select n).FirstOrDefault().Value;
             return npc;
@@ -189,19 +189,19 @@ namespace BattleNet
 
         public bool Attack(UInt32 id)
         {
-            if (!m_d2gsConnection.Socket.Connected)
+            if (!_d2gsConnection.Socket.Connected)
                 return false;
-            m_gameData.CharacterSkillSetup = BattleNet.GameData.CharacterSkillSetupType.SORCERESS_LIGHTNING;
-            switch (m_gameData.CharacterSkillSetup)
+            _gameData.CharacterSkillSetup = BattleNet.GameData.CharacterSkillSetupType.SORCERESS_LIGHTNING;
+            switch (_gameData.CharacterSkillSetup)
             {
                 case GameData.CharacterSkillSetupType.SORCERESS_LIGHTNING:
-                    if (m_gameData.RightSkill != (uint)Skills.Type.LIGHTNING)
+                    if (_gameData.RightSkill != (uint)Skills.Type.LIGHTNING)
                         SwitchSkill((uint)Skills.Type.LIGHTNING);
                     Thread.Sleep(300);
                     SendPacket(Actions.CastOnObject(id));
                     break;
                 case GameData.CharacterSkillSetupType.SORCERESS_BLIZZARD:
-                    if (m_gameData.RightSkill != (uint)Skills.Type.blizzard)
+                    if (_gameData.RightSkill != (uint)Skills.Type.blizzard)
                         SwitchSkill((uint)Skills.Type.blizzard);
                     Thread.Sleep(300);
                     SendPacket(Actions.CastOnObject(id));
@@ -216,15 +216,15 @@ namespace BattleNet
 
         public void MoveToAct5()
         {
-            if (m_gameData.CurrentAct == BattleNet.Globals.ActType.ACT_I)
+            if (_gameData.CurrentAct == BattleNet.Globals.ActType.ACT_I)
             {
                 Logger.Write("Moving to Act 5");
-                MoveTo(m_gameData.RogueEncampmentWp.Location);
+                MoveTo(_gameData.RogueEncampmentWp.Location);
                 byte[] temp = { 0x02, 0x00, 0x00, 0x00 };
-                SendPacket(0x13, temp, BitConverter.GetBytes(m_gameData.RogueEncampmentWp.Id));
+                SendPacket(0x13, temp, BitConverter.GetBytes(_gameData.RogueEncampmentWp.Id));
                 Thread.Sleep(300);
                 byte[] tempa = { 0x6D, 0x00, 0x00, 0x00 };
-                SendPacket(0x49, BitConverter.GetBytes(m_gameData.RogueEncampmentWp.Id), tempa);
+                SendPacket(0x49, BitConverter.GetBytes(_gameData.RogueEncampmentWp.Id), tempa);
                 Thread.Sleep(300);
                 MoveTo(5105, 5050);
                 MoveTo(5100, 5025);
@@ -234,11 +234,11 @@ namespace BattleNet
 
         public virtual void PickItems()
         {
-            var picking_items = (from i in m_gameData.Items
+            var picking_items = (from i in _gameData.Items
                                  where i.Value.ground
                                  select i.Value);
 
-            lock (m_gameData.Items)
+            lock (_gameData.Items)
             {
                 foreach (var i in picking_items)
                 {
@@ -253,7 +253,7 @@ namespace BattleNet
                     {
                         if (!Pickit.PickitMap.ContainsKey(i.type))
                             continue;
-                        if (m_gameData.Belt.m_items.Count >= 16 && i.type == "rvl")
+                        if (_gameData.Belt._items.Count >= 16 && i.type == "rvl")
                             continue;
                         if (Pickit.PickitMap[i.type](i))
                         {
@@ -273,7 +273,7 @@ namespace BattleNet
                             {
                                 using (StreamWriter sw = File.AppendText("log.txt"))
                                 {
-                                    sw.WriteLine("{6} [{5}] {0}: {1}, {2}, Ethereal:{3}, {4}", i.name, i.type, i.quality, i.ethereal, i.sockets == uint.MaxValue ? 0 : i.sockets, m_gameData.Me.Name, DateTime.Today.ToShortTimeString());
+                                    sw.WriteLine("{6} [{5}] {0}: {1}, {2}, Ethereal:{3}, {4}", i.name, i.type, i.quality, i.ethereal, i.sockets == uint.MaxValue ? 0 : i.sockets, _gameData.Me.Name, DateTime.Today.ToShortTimeString());
                                 }
                             }
                         }
@@ -343,42 +343,42 @@ namespace BattleNet
                     return;
                 }
             }
-            curLife = m_gameData.Npcs[pindle.Id].Life;
-            if (m_gameData.Npcs[pindle.Id].IsLightning && m_gameData.CharacterSkillSetup == GameData.CharacterSkillSetupType.SORCERESS_LIGHTNING)
+            curLife = _gameData.Npcs[pindle.Id].Life;
+            if (_gameData.Npcs[pindle.Id].IsLightning && _gameData.CharacterSkillSetup == GameData.CharacterSkillSetupType.SORCERESS_LIGHTNING)
             {
                 LeaveGame();
                 return;
             }
-            while (m_gameData.Npcs[pindle.Id].Life > 0 && m_d2gsConnection.Socket.Connected)
+            while (_gameData.Npcs[pindle.Id].Life > 0 && _d2gsConnection.Socket.Connected)
             {
                 if (!Attack(pindle.Id))
                 {
                     LeaveGame();
                     return;
                 }
-                if (curLife > m_gameData.Npcs[pindle.Id].Life)
+                if (curLife > _gameData.Npcs[pindle.Id].Life)
                 {
-                    curLife = m_gameData.Npcs[pindle.Id].Life;
+                    curLife = _gameData.Npcs[pindle.Id].Life;
                     //Console.WriteLine("{0}: [D2GS] Pindleskins Life: {1}", Account, curLife);
                 }
             }
             Logger.Write("{0} is dead. Killing minions", pindle.Name);
 
             NpcEntity monster;
-            while (GetAliveNpc("Defiled Warrior", 20, out monster) && m_d2gsConnection.Socket.Connected)
+            while (GetAliveNpc("Defiled Warrior", 20, out monster) && _d2gsConnection.Socket.Connected)
             {
-                curLife = m_gameData.Npcs[monster.Id].Life;
+                curLife = _gameData.Npcs[monster.Id].Life;
                 Logger.Write("Killing Defiled Warrior");
-                while (m_gameData.Npcs[monster.Id].Life > 0 && m_d2gsConnection.Socket.Connected)
+                while (_gameData.Npcs[monster.Id].Life > 0 && _d2gsConnection.Socket.Connected)
                 {
                     if (!Attack(monster.Id))
                     {
                         LeaveGame();
                         return;
                     }
-                    if (curLife > m_gameData.Npcs[monster.Id].Life)
+                    if (curLife > _gameData.Npcs[monster.Id].Life)
                     {
-                        curLife = m_gameData.Npcs[monster.Id].Life;
+                        curLife = _gameData.Npcs[monster.Id].Life;
                         //Console.WriteLine("{0}: [D2GS] Defiled Warriors Life: {1}", Account, curLife);
                     }
                 }
@@ -395,12 +395,12 @@ namespace BattleNet
         }
         public UInt32 GetSkillLevel(Skills.Type skill)
         {
-            return m_gameData.SkillLevels[skill] + m_gameData.ItemSkillLevels[skill];
+            return _gameData.SkillLevels[skill] + _gameData.ItemSkillLevels[skill];
         }
 
         public virtual bool UsePotion()
         {
-            Item pot = (from n in GameData.Belt.m_items
+            Item pot = (from n in GameData.Belt._items
                         where n.type == "rvl"
                         select n).FirstOrDefault();
 
@@ -410,7 +410,7 @@ namespace BattleNet
                 return false;
             }
             SendPacket(0x26, BitConverter.GetBytes(pot.id), GenericHandler.nulls, GenericHandler.nulls);
-            GameData.Belt.m_items.Remove(pot);
+            GameData.Belt._items.Remove(pot);
             return true;
         }
 
@@ -430,7 +430,7 @@ namespace BattleNet
                 Thread.Sleep(300);
                 SendPacket(0x38, GenericHandler.one, BitConverter.GetBytes(malah.Id), GenericHandler.nulls);
                 Thread.Sleep(2000);
-                Item n = (from item in m_gameData.Items
+                Item n = (from item in _gameData.Items
                           where item.Value.action == (uint)Item.Action.add_to_shop
                           && item.Value.type == "tsc"
                           select item).FirstOrDefault().Value;
@@ -458,14 +458,14 @@ namespace BattleNet
 
         public bool TalkToTrader(UInt32 id)
         {
-            m_gameData.TalkedToNpc = false;
-            NpcEntity npc = m_gameData.Npcs[id];
+            _gameData.TalkedToNpc = false;
+            NpcEntity npc = _gameData.Npcs[id];
 
-            double distance = m_gameData.Me.Location.Distance(npc.Location);
+            double distance = _gameData.Me.Location.Distance(npc.Location);
 
             //if(debugging)
             Logger.Write("Attempting to talk to NPC");
-            SendPacket(Actions.MakeEntityMove(id, m_gameData.Me.Location));
+            SendPacket(Actions.MakeEntityMove(id, _gameData.Me.Location));
             
             int sleepStep = 200;
             for (int timeDifference = (int)distance * 120; timeDifference > 0; timeDifference -= sleepStep)
@@ -479,10 +479,10 @@ namespace BattleNet
             SendPacket(0x2f, GenericHandler.one, BitConverter.GetBytes(id));
 
             int timeoutStep = 100;
-            for (long npc_timeout = 4000; npc_timeout > 0 && !m_gameData.TalkedToNpc; npc_timeout -= timeoutStep)
+            for (long npc_timeout = 4000; npc_timeout > 0 && !_gameData.TalkedToNpc; npc_timeout -= timeoutStep)
                 Thread.Sleep(timeoutStep);
 
-            if (!m_gameData.TalkedToNpc)
+            if (!_gameData.TalkedToNpc)
             {
                 Logger.Write("Failed to talk to NPC");
                 return false;
@@ -492,7 +492,7 @@ namespace BattleNet
 
         public bool ReviveMerc()
         {
-            if (!m_gameData.HasMerc && Settings.Instance.ResurrectMercenary())
+            if (!_gameData.HasMerc && Settings.Instance.ResurrectMercenary())
             {
                 Logger.Write("Reviving Merc");
                 MoveTo(5082, 5080);
@@ -527,7 +527,7 @@ namespace BattleNet
         {
             Thread.Sleep(700);
             byte[] two = { 0x02, 0x00, 0x00, 0x00 };
-            SendPacket(0x13, two, BitConverter.GetBytes(m_gameData.RedPortal.Id));
+            SendPacket(0x13, two, BitConverter.GetBytes(_gameData.RedPortal.Id));
             Thread.Sleep(500);
         }
 

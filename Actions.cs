@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace BattleNet
 {
@@ -23,17 +21,17 @@ namespace BattleNet
 
         public static byte[] Walk(Coordinate coords)
         {
-            return BuildPacket(0x01, BitConverter.GetBytes((UInt16)coords.X), BitConverter.GetBytes((UInt16)coords.Y));
+            return BuildPacket(0x01, coords.ToBytes());
         }
 
         public static byte[] Run(Coordinate coords)
         {
-            return BuildPacket(0x03, BitConverter.GetBytes((UInt16)coords.X), BitConverter.GetBytes((UInt16)coords.Y));
+            return BuildPacket(0x03, coords.ToBytes());
         }
 
         public static byte[] Relocate(Coordinate coords)
         {
-            return BuildPacket(0x5f, BitConverter.GetBytes((UInt16)coords.X), BitConverter.GetBytes((UInt16)coords.Y));
+            return BuildPacket(0x5f, coords.ToBytes());
         }
 
         public static byte[] CastOnCoord(UInt16 x, UInt16 y)
@@ -50,27 +48,27 @@ namespace BattleNet
 
         public static byte[] CastOnObject(UInt32 id)
         {
-            return BuildPacket(0x0d, Connections.GenericDispatcher.one, 
+            return BuildPacket(0x0d, Connections.GenericDispatcher.One, 
                                 BitConverter.GetBytes(id));
         }
 
         public static byte[] RequestReassignment(UInt32 id)
         {
-            return BuildPacket(0x4b, Connections.GenericDispatcher.nulls, 
+            return BuildPacket(0x4b, Connections.GenericDispatcher.Nulls, 
                 BitConverter.GetBytes(id));
         }
 
         public static byte[] TerminateEntityChat(UInt32 id)
         {
-            return BuildPacket(0x30, Connections.GenericDispatcher.one, 
+            return BuildPacket(0x30, Connections.GenericDispatcher.One, 
                                 BitConverter.GetBytes(id));
         }
 
         public static byte[] MakeEntityMove(UInt32 id, Coordinate coords)
         {
-            return BuildPacket(0x59, Connections.GenericDispatcher.one, BitConverter.GetBytes(id),
-                                BitConverter.GetBytes(coords.X), Connections.GenericDispatcher.zero, Connections.GenericDispatcher.zero,
-                                BitConverter.GetBytes(coords.Y), Connections.GenericDispatcher.zero, Connections.GenericDispatcher.zero);
+            return BuildPacket(0x59, Connections.GenericDispatcher.One, BitConverter.GetBytes(id),
+                                BitConverter.GetBytes(coords.X), Connections.GenericDispatcher.Zero, Connections.GenericDispatcher.Zero,
+                                BitConverter.GetBytes(coords.Y), Connections.GenericDispatcher.Zero, Connections.GenericDispatcher.Zero);
         }
 
         public static byte[] SwitchSkill(UInt32 skill)
@@ -81,8 +79,8 @@ namespace BattleNet
 
         private static byte[] DrinkPotion(UInt32 id)
         {
-            return BuildPacket(0x26, BitConverter.GetBytes(id), Connections.GenericDispatcher.nulls,
-                                Connections.GenericDispatcher.nulls);
+            return BuildPacket(0x26, BitConverter.GetBytes(id), Connections.GenericDispatcher.Nulls,
+                                Connections.GenericDispatcher.Nulls);
         }
 
     }

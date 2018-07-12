@@ -25,24 +25,24 @@ namespace BattleNet
     class AsciiMap
     {
         
-        private MapPoint[,] m_map;
+        private MapPoint[,] _map;
         private static UInt16 width = 80;
         private static UInt16 height = 80;
-        private GameData m_gameData;
-        D2gsConnection m_connection;
-        private UInt16 m_x;
-        private UInt16 m_y;
+        private GameData _gameData;
+        D2gsConnection _connection;
+        private UInt16 _x;
+        private UInt16 _y;
         public AsciiMap(GameData gameData, D2gsConnection connection)
         {
-            m_gameData = gameData;
-            m_connection = connection;
+            _gameData = gameData;
+            _connection = connection;
 
-            m_map = new MapPoint[width,height];
+            _map = new MapPoint[width,height];
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
                 {
-                    m_map[x, y] = ' ';
+                    _map[x, y] = ' ';
                 }
             }
         }
@@ -50,7 +50,7 @@ namespace BattleNet
         public void ThreadFunction()
         {
             Logging.Logger.logToConsole = false;
-            while (m_connection.Socket.Connected)
+            while (_connection.Socket.Connected)
             {
                 PopulateMap();
                 DrawScreen();
@@ -65,85 +65,85 @@ namespace BattleNet
             {
                 for (int y = 0; y < height; y++)
                 {
-                    m_map[x, y] = ' ';
+                    _map[x, y] = ' ';
                 }
             }
 
-            m_x = (m_gameData.Me.Location.X);
-            m_y = (m_gameData.Me.Location.Y);
+            _x = (_gameData.Me.Location.X);
+            _y = (_gameData.Me.Location.Y);
 
 
-            foreach (NpcEntity npc in m_gameData.Npcs.Values)
+            foreach (NpcEntity npc in _gameData.Npcs.Values)
             {
-                if (Math.Abs(npc.Location.X - m_x) < 40)
+                if (Math.Abs(npc.Location.X - _x) < 40)
                 {
-                    if (Math.Abs(npc.Location.Y - m_y) < 40)
+                    if (Math.Abs(npc.Location.Y - _y) < 40)
                     {
                         if(npc.SuperUnique && npc.Life > 0)
-                            m_map[40 + npc.Location.X - m_x, 40 + npc.Location.Y - m_y] 
+                            _map[40 + npc.Location.X - _x, 40 + npc.Location.Y - _y] 
                                 = new MapPoint('S', ConsoleColor.DarkRed);
                         else if (npc.IsMinion && npc.Life > 0)
-                            m_map[40 + npc.Location.X - m_x, 40 + npc.Location.Y - m_y] 
+                            _map[40 + npc.Location.X - _x, 40 + npc.Location.Y - _y] 
                                 = new MapPoint('M',ConsoleColor.DarkRed);
                         else if (npc.Life > 0)
-                            m_map[40 + npc.Location.X - m_x, 40 + npc.Location.Y - m_y] 
+                            _map[40 + npc.Location.X - _x, 40 + npc.Location.Y - _y] 
                                 = new MapPoint('m', ConsoleColor.DarkYellow);
                         else
-                            m_map[40 + npc.Location.X - m_x, 40 + npc.Location.Y - m_y] 
+                            _map[40 + npc.Location.X - _x, 40 + npc.Location.Y - _y] 
                                 = '.';
                     }
                 }
             }
-            foreach (WorldObject obj in m_gameData.WorldObjects.Values)
+            foreach (WorldObject obj in _gameData.WorldObjects.Values)
             {
-                int x = (obj.Location.X - m_x);
-                int y = (obj.Location.Y - m_y);
-                if (Math.Abs(obj.Location.X - m_x) < 40)
+                int x = (obj.Location.X - _x);
+                int y = (obj.Location.Y - _y);
+                if (Math.Abs(obj.Location.X - _x) < 40)
                 {
-                    if (Math.Abs(obj.Location.Y - m_y) < 40)
+                    if (Math.Abs(obj.Location.Y - _y) < 40)
                     {
                         if (obj.Type == 0x01ad)
                         {
-                            m_map[40 + x, 40 + y] = new MapPoint('W', ConsoleColor.Blue);
+                            _map[40 + x, 40 + y] = new MapPoint('W', ConsoleColor.Blue);
                         }
                         else
                         {
-                            m_map[40 + x, 40 + y] = new MapPoint('*', ConsoleColor.DarkGray);
+                            _map[40 + x, 40 + y] = new MapPoint('*', ConsoleColor.DarkGray);
                         }
                     }
                 }
             }
-            if (m_gameData.RedPortal != null)
+            if (_gameData.RedPortal != null)
             {
-                if (Math.Abs(m_gameData.RedPortal.Location.X - m_x) < 40
-                    && Math.Abs(m_gameData.RedPortal.Location.Y - m_y) < 40)
+                if (Math.Abs(_gameData.RedPortal.Location.X - _x) < 40
+                    && Math.Abs(_gameData.RedPortal.Location.Y - _y) < 40)
                 {
-                    m_map[40 + m_gameData.RedPortal.Location.X - m_x,
-                          40 + m_gameData.RedPortal.Location.Y - m_y] = new MapPoint('R', ConsoleColor.Red);
+                    _map[40 + _gameData.RedPortal.Location.X - _x,
+                          40 + _gameData.RedPortal.Location.Y - _y] = new MapPoint('R', ConsoleColor.Red);
                 }
             }
 
             AddNpc("Malah", '♥');
             AddNpc("Qual-Kehk", 'Q');
             AddNpc("Anya", 'A');
-            m_map[40, 50] = new MapPoint('@',ConsoleColor.White);
+            _map[40, 50] = new MapPoint('@',ConsoleColor.White);
         }
 
         public void AddNpc(String name, Char symbol)
         {
             NpcEntity npc = GetNpc(name);
 
-            if (npc != null && npc.Initialized && Math.Abs(npc.Location.X - m_x) < 40
-                    && Math.Abs(npc.Location.Y - m_y) < 40)
+            if (npc != null && npc.Initialized && Math.Abs(npc.Location.X - _x) < 40
+                    && Math.Abs(npc.Location.Y - _y) < 40)
             {
-                m_map[40 + npc.Location.X - m_x,
-                          40 + npc.Location.Y - m_y] = new MapPoint(symbol, ConsoleColor.Green);
+                _map[40 + npc.Location.X - _x,
+                          40 + npc.Location.Y - _y] = new MapPoint(symbol, ConsoleColor.Green);
             }
         }
 
         public NpcEntity GetNpc(String name)
         {
-            NpcEntity npc = (from n in m_gameData.Npcs
+            NpcEntity npc = (from n in _gameData.Npcs
                              where n.Value.Name == name
                              select n).FirstOrDefault().Value;
             return npc;
@@ -158,9 +158,9 @@ namespace BattleNet
                 {
                     lock (Console.Out)
                     {
-                        Console.ForegroundColor = m_map[x, y].Color;
+                        Console.ForegroundColor = _map[x, y].Color;
                         Console.SetCursorPosition(x, y);
-                        Console.Write("{0}", m_map[x, y].Character);
+                        Console.Write("{0}", _map[x, y].Character);
                         Console.SetCursorPosition(0, 82);
                         Console.ResetColor();
                     }
