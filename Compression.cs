@@ -235,14 +235,14 @@ namespace BattleNet
 
         public static Int32 GetPacketSize(List<byte> buffer, out Int32 headerSize)
         {
-            if (buffer[0] < (byte)0xF0)
+            if (buffer[0] < 0xF0)
             {
                 headerSize = 1;
                 return (byte)buffer[0] - 1;
             }
 
             headerSize = 2;
-            return ((buffer[0] & (byte)0xF) << 8) + buffer[1] - 2;
+            return ((buffer[0] & 0xF) << 8) + buffer[1] - 2;
         }
     }
 }

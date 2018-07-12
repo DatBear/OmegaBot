@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using BattleNet.Logging;
 
@@ -9,7 +7,7 @@ namespace BattleNet.Connections.Readers
 {
     class D2gsReader : GenericHandler
     {
-        static readonly Int16[] packetSizes =
+        static readonly Int16[] PacketSizes =
 	    {
 		    1, 8, 1, 12, 1, 1, 1, 6, 6, 11, 6, 6, 9, 13, 12, 16,
 		    16, 8, 26, 14, 18, 11, 0, 0, 15, 2, 2, 3, 5, 3, 4, 6,
@@ -25,33 +23,31 @@ namespace BattleNet.Connections.Readers
 		    1
 	    };
 
-        protected String _character;
-        public String Character { get { return _character; } set { _character = value; } }
+        public String Character { get; set; }
 
-        protected Byte _classByte;
-        public Byte ClassByte { get { return _classByte; } set { _classByte = value; } }
+        public Byte ClassByte { get; set; }
 
-        protected List<byte> _hash;
-        protected List<byte> _token;
+        protected List<byte> Hash;
+        protected List<byte> Token;
 
         public D2gsReader(ref D2gsConnection conn, String character)
             : base(conn)
         {
-            _character = character;
+            Character = character;
         }
 
         public void SetInfo(List<byte> hash, List<byte> token)
         {
-            _hash = hash;
-            _token = token;
+            Hash = hash;
+            Token = token;
         }
         public delegate void NoParam();
         public event NoParam NextGame;
         public void Die()
         {
-            _connection.Close();
-            OnUpdateStatus(Client.Status.STATUS_NOT_IN_GAME);
-            NextGame();
+            Connection.Close();
+            OnUpdateStatus(Client.Status.StatusNotInGame);
+            NextGame?.Invoke();
         }
 
         bool GetChatPacketSize(List<byte> input, out Int32 output)
@@ -60,23 +56,23 @@ namespace BattleNet.Connections.Readers
 	        if(input.Count < 12)
 		        return false;
 
-	        const Int32 initial_offset = 10;
+	        const int initialOffset = 10;
 
-            Int32 name_offset = input.IndexOf(0,initial_offset);
+            int name_offset = input.IndexOf(0,initialOffset);
 
 	        if(name_offset == -1)
 		        return false;
 
-            name_offset -= initial_offset;
+            name_offset -= initialOffset;
 
-	        Int32 message_offset = input.IndexOf(0,initial_offset + name_offset + 1);
+	        Int32 message_offset = input.IndexOf(0,initialOffset + name_offset + 1);
 
 	        if(message_offset == -1)
 		        return false;
 
-            message_offset = message_offset - initial_offset - name_offset -1;
+            message_offset = message_offset - initialOffset - name_offset -1;
 
-	        output = initial_offset + name_offset + 1 + message_offset + 1;
+	        output = initialOffset + name_offset + 1 + message_offset + 1;
 
 	        return true;
         }
@@ -145,9 +141,9 @@ namespace BattleNet.Connections.Readers
 		        }
 		        break;
 	        default:
-		        if(identifier < packetSizes.Length)
+		        if(identifier < PacketSizes.Length)
 		        {
-			        output = packetSizes[identifier];
+			        output = PacketSizes[identifier];
 			        return output != 0;
 		        }
 		        break;
@@ -161,33 +157,33 @@ namespace BattleNet.Connections.Readers
             List<byte> buffer = new List<byte>();
             byte[] byteBuffer = new byte[4096];
             Int32 bytesRead = 0;
-            while (_connection.Socket.Connected)
+            while (Connection.Socket.Connected)
             {
                 try
                 {
 
-                    if (_connection.Stream.DataAvailable)
+                    if (Connection.Stream.DataAvailable)
                     {
-                        bytesRead = _connection.Stream.Read(byteBuffer, 0, byteBuffer.Length);
+                        bytesRead = Connection.Stream.Read(byteBuffer, 0, byteBuffer.Length);
                         buffer.AddRange(new List<byte>(byteBuffer).GetRange(0, bytesRead));
                     }
                     else
                     {
-                        if (!_connection.Socket.Connected)
+                        if (!Connection.Socket.Connected)
                         {
                             Die();
                             break;
                         }
                         Thread.Sleep(100);
                     }
-                    while (_connection.Stream.DataAvailable)
+                    while (Connection.Stream.DataAvailable)
                     {
-                        buffer.Add((byte)_connection.Stream.ReadByte());
+                        buffer.Add((byte)Connection.Stream.ReadByte());
                     }
                 }
                 catch
                 {
-                    Logging.Logger.Write("Disconnected from game server");
+                    Logger.Write("Disconnected from game server");
                     Die();
                     break;
                 }
@@ -206,12 +202,12 @@ namespace BattleNet.Connections.Readers
                             byte[] temp = {0x50, 0xcc, 0x5d, 0xed, 
                                        0xb6, 0x19, 0xa5, 0x91};
 
-                            Int32 pad = 16 -_character.Length;
+                            Int32 pad = 16 -Character.Length;
 
                             byte[] padding = new byte[pad];
-                            byte[] characterClass = { _classByte };
-                            byte[] joinpacket = _connection.BuildPacket(0x68, _hash, _token, characterClass, BitConverter.GetBytes((UInt32)0xd), temp, zero, System.Text.Encoding.ASCII.GetBytes(_character), padding);
-                            _connection.Write(joinpacket);
+                            byte[] characterClass = { ClassByte };
+                            byte[] joinpacket = Connection.BuildPacket(0x68, Hash, Token, characterClass, BitConverter.GetBytes((UInt32)0xd), temp, Zero, System.Text.Encoding.ASCII.GetBytes(Character), padding);
+                            Connection.Write(joinpacket);
                             Logger.Write("Join packet sent to server");
                             buffer.RemoveRange(0, 2);
                         }
@@ -244,26 +240,26 @@ namespace BattleNet.Connections.Readers
                             List<byte> actualPacket = new List<byte>(packet.GetRange(0, packetSize));
                             packet.RemoveRange(0, packetSize);
 
-                            lock (_connection.Packets)
+                            lock (Connection.Packets)
                             {
                                 //Logger.Write("Adding a D2GS packet {0:X2}", actualPacket[0]);
-                                _connection.Packets.Enqueue(1, actualPacket);
+                                Connection.Packets.Enqueue(1, actualPacket);
                             }
-                            _connection.PacketsReady.Set();
+                            Connection.PacketsReady.Set();
                             
                         }
                     }
                     catch
                     {
-                        OnUpdateStatus(Client.Status.STATUS_NOT_IN_GAME);
+                        OnUpdateStatus(Client.Status.StatusNotInGame);
 
                         Logger.Write("Leaving the game.");
-                        _connection.Write(new byte[] { 0x69 });
+                        Connection.Write(new byte[] { 0x69 });
 
                         Thread.Sleep(500);
 
                         Die();
-                        _connection.Kill();
+                        Connection.Kill();
                         
                         return;
                     }

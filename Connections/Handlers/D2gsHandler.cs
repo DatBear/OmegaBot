@@ -17,18 +17,18 @@ namespace BattleNet.Connections.Handlers
         {
             firstInfoPacket = true;
             Logger.Write("D2GS handler started!");
-            while (_connection.Socket.Connected)
+            while (Connection.Socket.Connected)
             {
-                if (_connection.Packets.IsEmpty())
+                if (Connection.Packets.IsEmpty())
                 {
                     //_connection.PacketsReady.WaitOne();
                 }
                 else
                 {
                     List<byte> packet;
-                    lock (_connection.Packets)
+                    lock (Connection.Packets)
                     {
-                        packet = _connection.Packets.Dequeue();
+                        packet = Connection.Packets.Dequeue();
                     }
                     byte type = packet[0];
                     DispatchPacket(type)(type, packet);
@@ -91,13 +91,13 @@ namespace BattleNet.Connections.Handlers
             List<byte> packet = new List<byte>();
             packet.Add(0x6d);
             packet.AddRange(BitConverter.GetBytes((uint)System.Environment.TickCount));
-            packet.AddRange(nulls);
-            packet.AddRange(nulls);
+            packet.AddRange(Nulls);
+            packet.AddRange(Nulls);
             /*
              _connection.BuildPacket(0x6d, BitConverter.GetBytes((uint)System.Environment.TickCount),
                               nulls, nulls);
              */
-            _connection.Write(packet.ToArray());
+            Connection.Write(packet.ToArray());
         }
         public delegate void NewEntity(UInt16 type, WorldObject ent);
         public event NewEntity UpdateWorldObject;
@@ -117,7 +117,7 @@ namespace BattleNet.Connections.Handlers
         protected void StartPingThread(byte type, List<byte> data)
         {
             Logger.Write("Starting Ping thread");
-            _connection.Stream.WriteByte(0x6b);
+            Connection.Stream.WriteByte(0x6b);
             StartPinging();
         }
 
@@ -244,7 +244,7 @@ namespace BattleNet.Connections.Handlers
                 Logger.Write("{0}: [D2GS] Talking to an NPC.");
                 talkedToNpc = true;
                 UInt32 id = BitConverter.ToUInt32(data.ToArray(), 2);
-                _connection.Write(_connection.BuildPacket(0x2f, one, BitConverter.GetBytes(id)));
+                Connection.Write(Connection.BuildPacket(0x2f, One, BitConverter.GetBytes(id)));
                 NpcTalkedEvent();
             }
         }

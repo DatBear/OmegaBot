@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Net;
+using BattleNet.Logging;
 
 namespace BattleNet.Connections
 {
@@ -10,17 +11,17 @@ namespace BattleNet.Connections
     {
         public override bool Init(IPAddress server, ushort port, List<byte> data)
         {
-            Logging.Logger.Write("[MCP] Connecting to {0}:{1}", server, port);
+            Logger.Write("[MCP] Connecting to {0}:{1}", server, port);
             _socket.Connect(server, port);
             _stream = _socket.GetStream();
             if (!_stream.CanWrite)
             {
-                Logging.Logger.Write("Failed To connect to {0}:{1}", server, port);
+                Logger.Write("Failed To connect to {0}:{1}", server, port);
                 return false;
             }
             
             _stream.WriteByte(0x01);
-            byte[] packet = BuildPacket((byte)0x01, data);
+            byte[] packet = BuildPacket(0x01, data);
             Write(packet);
 
             OnStartThread();
@@ -80,7 +81,7 @@ namespace BattleNet.Connections
 
             UInt16 arrayCount = (UInt16)(packetArray.Count + 3);
             packet.AddRange(BitConverter.GetBytes(arrayCount));
-            packet.Add((byte)command);
+            packet.Add(command);
             packet.AddRange(packetArray);
 
             byte[] bytes = new byte[arrayCount];

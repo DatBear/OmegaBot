@@ -14,9 +14,9 @@ namespace BattleNet.Items
         {
             byte packet = (byte)reader.Read(8);
             item.action = (uint)reader.Read(8);
-            item.category = (uint)reader.Read(8);
+            item.Category = (uint)reader.Read(8);
             byte validSize = (byte)reader.Read(8);
-            item.id = (uint)reader.Read(32);
+            item.Id = (uint)reader.Read(32);
             if (packet == 0x9d)
             {
                 reader.Read(40);
@@ -25,102 +25,102 @@ namespace BattleNet.Items
 
         private static void StatusInfo(BitReader reader, ref Item item) // get info for basic status info
         {
-            item.equipped = reader.ReadBit();
+            item.Equipped = reader.ReadBit();
             reader.ReadBit();
             reader.ReadBit();
-            item.in_socket = reader.ReadBit();
-            item.identified = reader.ReadBit();
+            item.InSocket = reader.ReadBit();
+            item.Identified = reader.ReadBit();
             reader.ReadBit();
-            item.switched_in = reader.ReadBit();
-            item.switched_out = reader.ReadBit();
-            item.broken = reader.ReadBit();
+            item.SwitchedIn = reader.ReadBit();
+            item.SwitchedOut = reader.ReadBit();
+            item.Broken = reader.ReadBit();
             reader.ReadBit();
-            item.potion = reader.ReadBit();
+            item.Potion = reader.ReadBit();
             item.has_sockets = reader.ReadBit();
             reader.ReadBit();
-            item.in_store = reader.ReadBit();
-            item.not_in_a_socket = reader.ReadBit();
+            item.InStore = reader.ReadBit();
+            item.NotInASocket = reader.ReadBit();
             reader.ReadBit();
-            item.ear = reader.ReadBit();
-            item.start_item = reader.ReadBit();
+            item.Ear = reader.ReadBit();
+            item.StartItem = reader.ReadBit();
             reader.ReadBit();
             reader.ReadBit();
             reader.ReadBit();
-            item.simple_item = reader.ReadBit();
+            item.SimpleItem = reader.ReadBit();
             item.ethereal = reader.ReadBit();
             reader.ReadBit();
-            item.personalised = reader.ReadBit();
-            item.gambling = reader.ReadBit();
-            item.rune_word = reader.ReadBit();
+            item.Personalised = reader.ReadBit();
+            item.Gambling = reader.ReadBit();
+            item.RuneWord = reader.ReadBit();
             reader.Read(5);
-            item.version = (Item.VersionType)(reader.Read(8));
+            item.Version = (Item.VersionType)(reader.Read(8));
             reader.Read(2);
         }
 
-        private static void getLocation(BitReader reader, ref Item item)
+        private static void GetLocation(BitReader reader, ref Item item)
         {
             byte destination = (byte)reader.Read(3);
-            item.ground = (destination == 0x03);
+            item.Ground = (destination == 0x03);
 
-            if (item.ground)
+            if (item.Ground)
             {
-                item.x = (UInt16)reader.Read(16);
-                item.y = (UInt16)reader.Read(16);
+                item.X = (UInt16)reader.Read(16);
+                item.Y = (UInt16)reader.Read(16);
             }
             else
             {
-                item.directory = (byte)reader.Read(4);
-                item.x = (byte)reader.Read(4);
-                item.y = (byte)reader.Read(3);
-                item.container = (Item.ContainerType)(reader.Read(4));
+                item.Directory = (byte)reader.Read(4);
+                item.X = (byte)reader.Read(4);
+                item.Y = (byte)reader.Read(3);
+                item.Container = (Item.ContainerType)(reader.Read(4));
             }
-            item.unspecified_directory = false;
+            item.UnspecifiedDirectory = false;
 
             if (item.action == (uint)Item.Action.add_to_shop || item.action == (uint)Item.Action.remove_fro_shop)
             {
-                long container = (long)(item.container);
+                long container = (long)(item.Container);
                 container |= 0x80;
                 if ((container & 1) != 0)
                 {
                     container--; //remove first bit
-                    item.y += 8;
+                    item.Y += 8;
                 }
-                item.container = (Item.ContainerType)container;
+                item.Container = (Item.ContainerType)container;
             }
-            else if (item.container == Item.ContainerType.unspecified)
+            else if (item.Container == Item.ContainerType.unspecified)
             {
-                if (item.directory == (uint)Item.DirectoryType.not_applicable)
+                if (item.Directory == (uint)Item.DirectoryType.not_applicable)
                 {
-                    if (item.in_socket)
+                    if (item.InSocket)
                         //y is ignored for this container type, x tells you the index
-                        item.container = Item.ContainerType.item;
+                        item.Container = Item.ContainerType.item;
                     else if (item.action == (uint)Item.Action.put_in_belt || item.action == (uint)Item.Action.remove_fro_belt)
                     {
-                        item.container = Item.ContainerType.belt;
-                        item.y = item.x / 4;
-                        item.x %= 4;
+                        item.Container = Item.ContainerType.belt;
+                        item.Y = item.X / 4;
+                        item.X %= 4;
                     }
                 }
                 else
-                    item.unspecified_directory = true;
+                    item.UnspecifiedDirectory = true;
             }
         }
 
         public static bool EarInfo(BitReader reader, ref Item item)
         {
-            if (item.ear)
+            if (item.Ear)
             {
                 reader.Read(3);
-                item.ear_level = (byte)reader.Read(7);
+                item.EarLevel = (byte)reader.Read(7);
                 //item.ear_name = "Fix Me"; //fix me later
-                List<Byte> ear_name = new List<byte>();
+                List<Byte> earName = new List<byte>();
                 reader.Read(8);
-                while (ear_name.Last() != 0x00)
+                while (earName.Last() != 0x00)
                 {
                     reader.Read(8); // 16 characters of 7 bits each for the name of the ear to process later
                 }
                 
-                item.ear_name = Convert.ToBase64String(ear_name.ToArray());
+                item.EarName = Convert.ToBase64String(earName.ToArray());
                 return true;
             }
             else
@@ -129,12 +129,12 @@ namespace BattleNet.Items
 
         public static bool GetItemType(BitReader reader, ref Item item) // gets the 3 letter item code
         {
-            byte[] code_bytes = new byte[4];
-            for (int i = 0; i < code_bytes.Length; i++)
-                code_bytes[i] = (byte)(reader.Read(8));
-            code_bytes[3] = 0;
+            byte[] codeBytes = new byte[4];
+            for (int i = 0; i < codeBytes.Length; i++)
+                codeBytes[i] = (byte)(reader.Read(8));
+            codeBytes[3] = 0;
 
-            item.type = System.Text.Encoding.ASCII.GetString(code_bytes).Substring(0, 3);
+            item.type = Encoding.ASCII.GetString(codeBytes).Substring(0, 3);
 
             ItemEntry entry;
             if (!DataManager.Instance._itemData.Get(item.type, out entry))
@@ -144,18 +144,18 @@ namespace BattleNet.Items
             }
 
             item.name = entry.Name;
-            item.width = entry.Width;
-            item.height = entry.Height;
+            item.Width = entry.Width;
+            item.Height = entry.Height;
 
-            item.is_armor = entry.IsArmor();
-            item.is_weapon = entry.IsWeapon();
+            item.IsArmor = entry.IsArmor();
+            item.IsWeapon = entry.IsWeapon();
 
             if (item.type == "gld")
             {
-                item.is_gold = true;
-                bool big_pile = reader.ReadBit();
-                if (big_pile) item.amount = (uint)reader.Read(32);
-                else item.amount = (uint)reader.Read(12);
+                item.IsGold = true;
+                bool bigPile = reader.ReadBit();
+                if (bigPile) item.Amount = (uint)reader.Read(32);
+                else item.Amount = (uint)reader.Read(12);
                 return true;
             }
             else return false;
@@ -163,59 +163,59 @@ namespace BattleNet.Items
 
         public static void GetSocketInfo(BitReader reader, ref Item item)
         {
-            item.used_sockets = (byte)reader.Read(3);
+            item.UsedSockets = (byte)reader.Read(3);
         }
 
         public static bool GetLevelQuality(BitReader reader, ref Item item)
         {
             item.quality = Item.QualityType.normal;
-            if (item.simple_item || item.gambling)
+            if (item.SimpleItem || item.Gambling)
                 return false;
-            item.level = (byte)reader.Read(7);
+            item.Level = (byte)reader.Read(7);
             item.quality = (Item.QualityType)(reader.Read(4));
             return true;
         }
 
         public static void GetGraphicInfo(BitReader reader, ref Item item)
         {
-            item.has_graphic = reader.ReadBit(); ;
-            if (item.has_graphic)
-                item.graphic = (byte)reader.Read(3);
+            item.HasGraphic = reader.ReadBit();
+            if (item.HasGraphic)
+                item.Graphic = (byte)reader.Read(3);
 
-            item.has_colour = reader.ReadBit();
-            if (item.has_colour)
-                item.colour = (UInt16)reader.Read(11);
+            item.HasColour = reader.ReadBit();
+            if (item.HasColour)
+                item.Colour = (UInt16)reader.Read(11);
         }
 
         public static void GetIdentifiedInfo(BitReader reader, ref Item item)
         {
-            if (item.identified)
+            if (item.Identified)
             {
                 switch (item.quality)
                 {
                     case Item.QualityType.inferior:
-                        item.prefix = (byte)reader.Read(3);
+                        item.Prefix = (byte)reader.Read(3);
                         break;
                     case Item.QualityType.superior:
-                        item.superiority = (Item.SuperiorItemClassType)(reader.Read(3));
+                        item.Superiority = (Item.SuperiorItemClassType)(reader.Read(3));
                         break;
                     case Item.QualityType.magical:
-                        item.prefix = (uint)reader.Read(11);
-                        item.suffix = (uint)reader.Read(11);
+                        item.Prefix = (uint)reader.Read(11);
+                        item.Suffix = (uint)reader.Read(11);
                         break;
 
                     case Item.QualityType.crafted:
                     case Item.QualityType.rare:
-                        item.prefix = (uint)reader.Read(8) - 156;
-                        item.suffix = (uint)reader.Read(8) - 1;
+                        item.Prefix = (uint)reader.Read(8) - 156;
+                        item.Suffix = (uint)reader.Read(8) - 1;
                         break;
 
                     case Item.QualityType.set:
-                        item.set_code = (uint)reader.Read(12);
+                        item.SetCode = (uint)reader.Read(12);
                         break;
                     case Item.QualityType.unique:
                         if (item.type != "std") //standard of heroes exception?
-                            item.unique_code = (uint)reader.Read(12);
+                            item.UniqueCode = (uint)reader.Read(12);
                         break;
                 }
             }
@@ -225,42 +225,42 @@ namespace BattleNet.Items
                 for (ulong i = 0; i < 3; i++)
                 {
                     if (reader.ReadBit())
-                        item.prefixes.Add((uint)reader.Read(11));
+                        item.Prefixes.Add((uint)reader.Read(11));
                     if (reader.ReadBit())
-                        item.suffixes.Add((uint)reader.Read(11));
+                        item.Suffixes.Add((uint)reader.Read(11));
                 }
             }
 
-            if (item.rune_word)
+            if (item.RuneWord)
             {
-                item.runeword_id = (uint)reader.Read(12);
-                item.runeword_parameter = (byte)reader.Read(4);
+                item.RunewordId = (uint)reader.Read(12);
+                item.RunewordParameter = (byte)reader.Read(4);
                 //std::cout << "runeword_id: " << item.runeword_id << ", parameter: " << item.runeword_parameter << std::endl;
             }
 
-            if (item.personalised)
+            if (item.Personalised)
             {
-                List<Byte> personalised_name = new List<byte>();
+                List<Byte> personalisedName = new List<byte>();
                 reader.Read(8);
-                while (personalised_name.Last() != 0x00)
+                while (personalisedName.Last() != 0x00)
                 {
                     reader.Read(8); // 16 characters of 7 bits each for the name of the ear to process later
                 }
-                item.personalised_name = Convert.ToBase64String(personalised_name.ToArray()); //this is also a problem part i'm not sure about
+                item.PersonalisedName = Convert.ToBase64String(personalisedName.ToArray()); //this is also a problem part i'm not sure about
 
             }
 
-            if (item.is_armor)
-                item.defense = (uint)reader.Read(11) - 10;
+            if (item.IsArmor)
+                item.Defense = (uint)reader.Read(11) - 10;
 
             if (item.type == "7cr")
                 reader.Read(8);
-            else if (item.is_armor || item.is_weapon)
+            else if (item.IsArmor || item.IsWeapon)
             {
-                item.maximu_durability = (byte)reader.Read(8);
-                item.indestructible = (uint)((item.maximu_durability == 0) ? 1 : 0);
+                item.MaximumDurability = (byte)reader.Read(8);
+                item.Indestructible = (uint)((item.MaximumDurability == 0) ? 1 : 0);
 
-                item.durability = (byte)reader.Read(8);
+                item.Durability = (byte)reader.Read(8);
                 reader.ReadBit();
             }
             if (item.has_sockets)
@@ -274,15 +274,15 @@ namespace BattleNet.Items
             {
                 GenericInfo(reader, ref item);
                 StatusInfo(reader, ref item);
-                getLocation(reader, ref item);
+                GetLocation(reader, ref item);
                 if (EarInfo(reader, ref item)) return item;
                 if (GetItemType(reader, ref item)) return item;
                 if (!GetLevelQuality(reader, ref item)) return item;
                 GetGraphicInfo(reader, ref item);
                 GetIdentifiedInfo(reader, ref item); // get nova to help with this
             }
-            catch
-            {
+            catch {
+                // ignored
             }
             return item;
         }

@@ -142,13 +142,13 @@ namespace BattleNet {
             String difficulty = _data.GameOptions.Difficulty?.ToLower() ?? "hell";
 
             if (difficulty.Contains("hell")) {
-                ret = Client.GameDifficulty.HELL;
+                ret = Client.GameDifficulty.Hell;
             }
             else if (difficulty.Contains("night")) {
-                ret = Client.GameDifficulty.NIGHTMARE;
+                ret = Client.GameDifficulty.Nightmare;
             }
             else {
-                ret = Client.GameDifficulty.NORMAL;
+                ret = Client.GameDifficulty.Normal;
             }
 
             return ret;

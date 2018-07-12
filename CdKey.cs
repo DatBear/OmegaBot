@@ -16,15 +16,12 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Collections;
 
 namespace BattleNet
 {
     class CdKey
     {
-        static readonly byte[] alphaMap =
+        static readonly byte[] AlphaMap =
 	    {
 		    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
 		    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -77,7 +74,7 @@ namespace BattleNet
                 return (ulong)(input - 0x37);
         }
 
-        public static bool GetD2KeyHash(string cdkey, ref uint client_token, uint server_token, ref List<byte> output, ref  List<byte> public_value)
+        public static bool GetD2KeyHash(string cdkey, ref uint clientToken, uint serverToken, ref List<byte> output, ref  List<byte> publicValue)
         {
             ulong checksum = 0;
             ulong n, n2, v, v2;
@@ -88,9 +85,9 @@ namespace BattleNet
             for (int i = 0; i < cdkey.Length; i += 2)
             {
                 char[] tmpBuffer = manipulatedKey.ToCharArray();
-                c1 = (char)alphaMap[cdkey[i]];
+                c1 = (char)AlphaMap[cdkey[i]];
                 n = (ulong)c1 * 3;
-                c2 = (char)alphaMap[cdkey[i + 1]];
+                c2 = (char)AlphaMap[cdkey[i + 1]];
                 n = (ulong)c2 + 8 * n;
 
                 if (n >= 0x100)
@@ -169,10 +166,10 @@ namespace BattleNet
             string hexString = manipulatedKey.Substring(2, 6);
             UInt32 num = UInt32.Parse(hexString, System.Globalization.NumberStyles.HexNumber);
 
-            public_value = new List<byte>(BitConverter.GetBytes(num));
+            publicValue = new List<byte>(BitConverter.GetBytes(num));
 
-            List<byte> hashData = new List<byte>(BitConverter.GetBytes(client_token));
-            hashData.AddRange(BitConverter.GetBytes(server_token));
+            List<byte> hashData = new List<byte>(BitConverter.GetBytes(clientToken));
+            hashData.AddRange(BitConverter.GetBytes(serverToken));
 
 
             hashData.AddRange(BitConverter.GetBytes(UInt32.Parse(manipulatedKey.Substring(0, 2), System.Globalization.NumberStyles.HexNumber)));

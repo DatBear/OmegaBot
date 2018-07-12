@@ -15,7 +15,7 @@ namespace BattleNet.Logging
     }
     class Logger
     {
-        public static bool logToConsole = true;
+        public static bool LogToConsole = true;
 
         public static void InitTrace()
         {
@@ -31,7 +31,7 @@ namespace BattleNet.Logging
         {
             String stamp = DateTime.Now.ToString("[dd/MM HH:mm:ss]");
             String output = stamp + " " + Thread.CurrentThread.Name + " " + str;
-            if (logToConsole)
+            if (LogToConsole)
             {
                 lock (Console.Out)
                 {
@@ -45,7 +45,7 @@ namespace BattleNet.Logging
         {
             String stamp = DateTime.Now.ToString("[dd/MM HH:mm:ss]");
             String output = stamp + " " + Thread.CurrentThread.Name + " " + String.Format(str, args);
-            if (logToConsole)
+            if (LogToConsole)
                 Console.WriteLine(output);
             Trace.WriteLine(output);
         }

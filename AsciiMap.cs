@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using BattleNet.Connections;
 using System.Threading;
+using BattleNet.Logging;
 
 namespace BattleNet
 {
@@ -49,14 +48,14 @@ namespace BattleNet
 
         public void ThreadFunction()
         {
-            Logging.Logger.logToConsole = false;
+            Logger.LogToConsole = false;
             while (_connection.Socket.Connected)
             {
                 PopulateMap();
                 DrawScreen();
                 Thread.Sleep(50);
             }
-            Logging.Logger.logToConsole = true;
+            Logger.LogToConsole = true;
         }
 
         public void PopulateMap()

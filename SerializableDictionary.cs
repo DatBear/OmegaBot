@@ -43,7 +43,7 @@ namespace BattleNet
                 TValue value = (TValue)valueSerializer.Deserialize(reader);
                 reader.ReadEndElement();
 
-                this.Add(key, value);
+                Add(key, value);
 
                 reader.ReadEndElement();
                 reader.MoveToContent();

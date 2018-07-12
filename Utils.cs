@@ -53,11 +53,11 @@ namespace BattleNet
 	        switch(difficulty)
 	        {
 		        default:
-		        case Client.GameDifficulty.NORMAL:
+		        case Client.GameDifficulty.Normal:
 			        return 0x0000;
-		        case Client.GameDifficulty.NIGHTMARE:
+		        case Client.GameDifficulty.Nightmare:
 			        return 0x1000;
-		        case Client.GameDifficulty.HELL:
+		        case Client.GameDifficulty.Hell:
 			        return 0x2000;
 	        }
         }

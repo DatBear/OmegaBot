@@ -16,15 +16,12 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Collections;
 
 namespace BattleNet
 {
     class Bsha1
     {
-        protected static void setBufferByte(uint[] buffer, int offset, byte val)
+        protected static void SetBufferByte(uint[] buffer, int offset, byte val)
         {
             int index = offset / 4;
             int position = offset % 4;
@@ -33,7 +30,7 @@ namespace BattleNet
             buffer[index] |= (uint)val << bit_offset;
         }
 
-        protected static byte getBufferByte(uint[] buffer, int offset)
+        protected static byte GetBufferByte(uint[] buffer, int offset)
         {
             int index = offset / 4;
             int position = offset % 4;
@@ -128,22 +125,22 @@ namespace BattleNet
 
             for(uint i = 0 ; i < input.Count ; i += max_subsection_length)
             {
-                uint subsection_length = Math.Min(max_subsection_length,(uint)input.Count-i);
+                uint subsectionLength = Math.Min(max_subsection_length,(uint)input.Count-i);
 
-                if (subsection_length > max_subsection_length)
-                    subsection_length = max_subsection_length;
+                if (subsectionLength > max_subsection_length)
+                    subsectionLength = max_subsection_length;
 
-                for (uint j = 0; j < subsection_length; j++)
+                for (uint j = 0; j < subsectionLength; j++)
                 {
                     byte[] temp = new byte[input.Count];
                     input.CopyTo(temp);
-                    setBufferByte(buffer, (int)(initialized_length + j), temp[(int)(j + i)]);
+                    SetBufferByte(buffer, (int)(initialized_length + j), temp[(int)(j + i)]);
                 }
 
-                if(subsection_length < max_subsection_length)
+                if(subsectionLength < max_subsection_length)
                 {
-                    for(uint j = subsection_length ; j < max_subsection_length ; j++)
-                        setBufferByte(buffer, (int)(initialized_length+j),0);
+                    for(uint j = subsectionLength ; j < max_subsection_length ; j++)
+                        SetBufferByte(buffer, (int)(initialized_length+j),0);
                 }
 
                 CalculateHash(ref buffer);
@@ -153,20 +150,20 @@ namespace BattleNet
             List<byte> op = new List<byte>();
             for (uint i = 0; i < buffer.Length; i++)
                 for (uint j = 0; j < 4; j++)
-                    op.Add(getBufferByte(buffer, (int)(i * 4 + j)));
+                    op.Add(GetBufferByte(buffer, (int)(i * 4 + j)));
             return new List<byte>(op.GetRange(0,20));
         }
 
-        public static List<byte> DoubleHash(UInt32 client_token, UInt32 server_token, string password)
+        public static List<byte> DoubleHash(UInt32 clientToken, UInt32 serverToken, string password)
         {
             byte[] pv = System.Text.Encoding.UTF8.GetBytes(password);
-	        List<byte> password_hash = GetHash(new List<byte>(pv));
+	        List<byte> passwordHash = GetHash(new List<byte>(pv));
 
-            List<byte> final_input = new List<byte>(BitConverter.GetBytes((UInt32)client_token));
-            final_input.AddRange(BitConverter.GetBytes((UInt32)server_token));
-	        final_input.AddRange(password_hash);
+            List<byte> finalInput = new List<byte>(BitConverter.GetBytes(clientToken));
+            finalInput.AddRange(BitConverter.GetBytes(serverToken));
+	        finalInput.AddRange(passwordHash);
 
-	        List<byte> output = GetHash(final_input);
+	        List<byte> output = GetHash(finalInput);
 
 	        return output;
         }

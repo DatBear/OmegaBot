@@ -30,16 +30,16 @@ namespace BattleNet.Items
         {
             List<byte> packet = new List<byte>();
             packet.AddRange(ShaftstopPacket);
-            Item item = Items.Parser.Parse(packet);
+            Item item = Parser.Parse(packet);
             packet.Clear();
             packet.AddRange(AliBabaPacket);
-            item = Items.Parser.Parse(packet);
+            item = Parser.Parse(packet);
             packet.Clear();
             packet.AddRange(IstRune1Packet);
-            item = Items.Parser.Parse(packet);
+            item = Parser.Parse(packet);
             packet.Clear();
             packet.AddRange(IstRune2Packet);
-            item = Items.Parser.Parse(packet);
+            item = Parser.Parse(packet);
         }
         
     }

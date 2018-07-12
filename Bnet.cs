@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BattleNet.Connections;
 using System.Threading;
 using BattleNet.Connections.Handlers;
@@ -137,7 +135,7 @@ namespace BattleNet
             _mcpHandler.StartGameServer += sub;
         }
 
-        public void SubscribeStatusUpdates(GenericDispatcher.StatusUpdaterHandler sub)
+        public void SubscribeStatusUpdates(GenericHandler.StatusUpdaterHandler sub)
         {
             _bncsHandler.UpdateStatus += sub;
             _mcpHandler.UpdateStatus += sub;

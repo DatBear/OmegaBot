@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections;
+ using BattleNet.Logging;
 
 namespace BattleNet
 {
@@ -38,13 +39,13 @@ namespace BattleNet
         {
             try
             {
-                for (int y = 0; y < item.height; y++)
-                    for (int x = 0; x < item.width; x++)
-                        _fields[(int)item.y + y][(int)item.x + x] = value;
+                for (int y = 0; y < item.Height; y++)
+                    for (int x = 0; x < item.Width; x++)
+                        _fields[(int)item.Y + y][(int)item.X + x] = value;
             }
             catch
             {
-                Logging.Logger.Write("Coordinate Exception....");
+                Logger.Write("Coordinate Exception....");
             }
         }
 
@@ -91,13 +92,13 @@ namespace BattleNet
 
         public Boolean FindFreeSpace(Item item, out Coordinate output)
         {
-            UInt16 ite_width = item.width;
-            UInt16 ite_height = item.height;
+            UInt16 itemWidth = item.Width;
+            UInt16 itemHeight = item.Height;
             for (UInt16 y = 0; y < _height; y++)
             {
                 for (UInt16 x = 0; x < _width; x++)
                 {
-                    if (RectangleIsFree(x, y, item.width, item.height))
+                    if (RectangleIsFree(x, y, item.Width, item.Height))
                     {
                         output = new Coordinate(x, y);
                         return true;

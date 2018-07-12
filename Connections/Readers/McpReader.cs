@@ -18,18 +18,18 @@ namespace BattleNet.Connections.Readers
             Logger.Write("MCP Reader started!");
             List<byte> data = new List<byte>();
             List<byte> mcpBuffer = new List<byte>();
-            while (_connection.Socket.Connected)
+            while (Connection.Socket.Connected)
             {
-                if (!_connection.GetPacket(ref mcpBuffer, ref  data))
+                if (!Connection.GetPacket(ref mcpBuffer, ref  data))
                 {
                     break;
                 }
                 
-                lock (_connection.Packets)
+                lock (Connection.Packets)
                 {
-                    _connection.Packets.Enqueue(1, data);
+                    Connection.Packets.Enqueue(1, data);
                 }
-                _connection.PacketsReady.Set();
+                Connection.PacketsReady.Set();
             }
         }
     }

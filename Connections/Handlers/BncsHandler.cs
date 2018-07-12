@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Net;
+using BattleNet.Logging;
 
 namespace BattleNet.Connections.Handlers
 {
@@ -45,30 +46,30 @@ namespace BattleNet.Connections.Handlers
 
         protected void OnStartGameCreationThread()
         {
-            Logging.Logger.Write("Starting game creation Thread");
+            Logger.Write("Starting game creation Thread");
             StartGameCreationThread();
         }
 
         protected void OnStartMcpThread(IPAddress ip, ushort port, List<byte> data)
         {
-            //Logging.Logger.Write("Starting the MCP");
+            //Logger.Write("Starting the MCP");
             StartMcpThread(ip, port, data);
         }
 
         public override void ThreadFunction()
         {
-            while (_connection.Socket.Connected)
+            while (Connection.Socket.Connected)
             {
-                if (_connection.Packets.IsEmpty())
+                if (Connection.Packets.IsEmpty())
                 {
-                    _connection.PacketsReady.WaitOne();
+                    Connection.PacketsReady.WaitOne();
                 }
                 else
                 {
                     List<byte> packet;
-                    lock (_connection.Packets)
+                    lock (Connection.Packets)
                     {
-                        packet = _connection.Packets.Dequeue();
+                        packet = Connection.Packets.Dequeue();
 
                     }
                     byte type = packet[1];
@@ -98,7 +99,7 @@ namespace BattleNet.Connections.Handlers
 
         protected void PingRequest(byte type, List<byte> data)
         {
-            _connection.Write(data.ToArray());
+            Connection.Write(data.ToArray());
         }
 
         protected void AuthInfoRequest(byte type, List<byte> data)
@@ -131,15 +132,15 @@ namespace BattleNet.Connections.Handlers
             List<byte> classic_hash = new List<byte>(), lod_hash = new List<byte>(), classic_public = new List<byte>(), lod_public = new List<byte>();
 
             if(!CdKey.GetD2KeyHash(_classicKey, ref  client_token, _serverToken, ref classic_hash, ref classic_public))
-                OnUpdateStatus(Client.Status.STATUS_INVALID_CD_KEY);
+                OnUpdateStatus(Client.Status.StatusInvalidCdKey);
             if(!CdKey.GetD2KeyHash(_expansionKey, ref client_token, _serverToken, ref  lod_hash, ref lod_public))
-                OnUpdateStatus(Client.Status.STATUS_INVALID_EXP_CD_KEY);
+                OnUpdateStatus(Client.Status.StatusInvalidExpCdKey);
 
-            byte[] packet = _connection.BuildPacket((byte)0x51, BitConverter.GetBytes(client_token), BitConverter.GetBytes(0x01000001), BitConverter.GetBytes(exe_checksum),
-                            BitConverter.GetBytes(0x00000002), nulls, ten, six, classic_public, nulls, classic_hash, ten, BitConverter.GetBytes((UInt32)10),
+            byte[] packet = Connection.BuildPacket((byte)0x51, BitConverter.GetBytes(client_token), BitConverter.GetBytes(0x01000001), BitConverter.GetBytes(exe_checksum),
+                            BitConverter.GetBytes(0x00000002), Nulls, Ten, Six, classic_public, Nulls, classic_hash, Ten, BitConverter.GetBytes((UInt32)10),
                             
-                            lod_public, nulls, lod_hash, System.Text.Encoding.UTF8.GetBytes(_exeInfo), zero, System.Text.Encoding.ASCII.GetBytes(Settings.Instance.CdKeyUser()), zero);
-            _connection.Write(packet);
+                            lod_public, Nulls, lod_hash, System.Text.Encoding.UTF8.GetBytes(_exeInfo), Zero, System.Text.Encoding.ASCII.GetBytes(Settings.Instance.CdKeyUser()), Zero);
+            Connection.Write(packet);
         }
 
         protected void AuthCheck(byte type, List<byte> data)
@@ -158,19 +159,19 @@ namespace BattleNet.Connections.Handlers
                 case 0x100: break;
                 case 0x101: break;
                 case 0x102: break;
-                case 0x200: OnUpdateStatus(Client.Status.STATUS_INVALID_CD_KEY); break;
-                case 0x210: OnUpdateStatus(Client.Status.STATUS_INVALID_EXP_CD_KEY); break;
-                case 0x201: OnUpdateStatus(Client.Status.STATUS_KEY_IN_USE); break;
-                case 0x211: OnUpdateStatus(Client.Status.STATUS_EXP_KEY_IN_USE); break;
-                case 0x202: OnUpdateStatus(Client.Status.STATUS_BANNED_CD_KEY); break;
-                case 0x212: OnUpdateStatus(Client.Status.STATUS_BANNED_EXP_CD_KEY); break;
+                case 0x200: OnUpdateStatus(Client.Status.StatusInvalidCdKey); break;
+                case 0x210: OnUpdateStatus(Client.Status.StatusInvalidExpCdKey); break;
+                case 0x201: OnUpdateStatus(Client.Status.StatusKeyInUse); break;
+                case 0x211: OnUpdateStatus(Client.Status.StatusExpKeyInUse); break;
+                case 0x202: OnUpdateStatus(Client.Status.StatusBannedCdKey); break;
+                case 0x212: OnUpdateStatus(Client.Status.StatusBannedExpCdKey); break;
                 case 0x203: break;
                 default: break;
             }
             if (result == 0)
             {
-                byte[] packet = _connection.BuildPacket((byte)0x33, BitConverter.GetBytes(0x80000004), nulls, System.Text.Encoding.UTF8.GetBytes("bnserver-D2DV.ini"), zero);
-                _connection.Write(packet);
+                byte[] packet = Connection.BuildPacket((byte)0x33, BitConverter.GetBytes(0x80000004), Nulls, System.Text.Encoding.UTF8.GetBytes("bnserver-D2DV.ini"), Zero);
+                Connection.Write(packet);
                 return true;
             }
             return false;
@@ -181,8 +182,8 @@ namespace BattleNet.Connections.Handlers
             UInt32 client_token = (uint)System.Environment.TickCount;
             List<byte> hash = Bsha1.DoubleHash(client_token, _serverToken, _password);
 
-            byte[] packet = _connection.BuildPacket((byte)0x3a, BitConverter.GetBytes(client_token), BitConverter.GetBytes(_serverToken), hash, System.Text.Encoding.ASCII.GetBytes(_account), zero);
-            _connection.Write(packet);
+            byte[] packet = Connection.BuildPacket((byte)0x3a, BitConverter.GetBytes(client_token), BitConverter.GetBytes(_serverToken), hash, System.Text.Encoding.ASCII.GetBytes(_account), Zero);
+            Connection.Write(packet);
         }
 
         protected void LoginResult(byte type, List<byte> data)
@@ -191,28 +192,28 @@ namespace BattleNet.Connections.Handlers
             switch (result)
             {
                 case 0x00:
-                    Logging.Logger.Write("[BNCS] Successfully logged into the account ");
+                    Logger.Write("[BNCS] Successfully logged into the account ");
                     break;
                 case 0x01:
-                    Logging.Logger.Write("[BNCS] Account does not exist");
+                    Logger.Write("[BNCS] Account does not exist");
                     break;
                 case 0x02:
-                    Logging.Logger.Write("[BNCS] Invalid password specified");
+                    Logger.Write("[BNCS] Invalid password specified");
                     break;
                 case 0x06:
-                    Logging.Logger.Write("[BNCS] Account has been closed");
+                    Logger.Write("[BNCS] Account has been closed");
                     break;
                 default:
-                    Logging.Logger.Write("[BNCS] Unknown login error ");
+                    Logger.Write("[BNCS] Unknown login error ");
                     break;
             }
             if (result == 0)
             {
                 byte[] packet = { 0xFF, 0x40, 0x04, 0x00 };
-                _connection.Write(packet);
+                Connection.Write(packet);
             }
             else
-                OnUpdateStatus(Client.Status.STATUS_LOGIN_ERROR);
+                OnUpdateStatus(Client.Status.StatusLoginError);
         }
 
         protected void RealmList(byte type, List<byte> data)
@@ -229,20 +230,20 @@ namespace BattleNet.Connections.Handlers
                 if (_realm == null && i == 1)
                 {
                     OnRealmUpdate(realmTitle);
-                    //Logging.Logger.Write("Logging on to realm {0}", realmTitle);
+                    //Logger.Write("Logging on to realm {0}", realmTitle);
                 }
             }
 
             UInt32 clientToken = 1;
-            byte[] packet = _connection.BuildPacket((byte)0x3e, BitConverter.GetBytes(clientToken), Bsha1.DoubleHash(clientToken, _serverToken, "password"), System.Text.Encoding.ASCII.GetBytes(_realm), zero);
-            _connection.Write(packet);
+            byte[] packet = Connection.BuildPacket((byte)0x3e, BitConverter.GetBytes(clientToken), Bsha1.DoubleHash(clientToken, _serverToken, "password"), System.Text.Encoding.ASCII.GetBytes(_realm), Zero);
+            Connection.Write(packet);
         }
 
         protected void StartMcp(byte type, List<byte> data)
         {
             if (data.Count <= 12)
             {
-                OnUpdateStatus(Client.Status.STATUS_MCP_LOGON_FAIL);
+                OnUpdateStatus(Client.Status.StatusMcpLogonFail);
                 return;
             }
 
@@ -259,8 +260,8 @@ namespace BattleNet.Connections.Handlers
 
         protected void EnterChat(byte type, List<byte> data)
         {
-            _connection.Write(_connection.BuildPacket(0x46, nulls));
-            _connection.Write(_connection.BuildPacket(0x15, System.Text.Encoding.ASCII.GetBytes(platform), System.Text.Encoding.ASCII.GetBytes(lod_id), nulls, BitConverter.GetBytes((uint)System.Environment.TickCount)));
+            Connection.Write(Connection.BuildPacket(0x46, Nulls));
+            Connection.Write(Connection.BuildPacket(0x15, System.Text.Encoding.ASCII.GetBytes(Platform), System.Text.Encoding.ASCII.GetBytes(LodId), Nulls, BitConverter.GetBytes((uint)System.Environment.TickCount)));
 
             OnStartGameCreationThread();
         }
@@ -268,8 +269,8 @@ namespace BattleNet.Connections.Handlers
         protected void HandleAdvertising(byte type, List<byte> data)
         {
             UInt32 ad_id = BitConverter.ToUInt32(data.ToArray(), 4);
-            byte[] packet = _connection.BuildPacket((byte)0x21, System.Text.Encoding.ASCII.GetBytes(platform), System.Text.Encoding.ASCII.GetBytes(lod_id), BitConverter.GetBytes(ad_id), zero, zero);
-            _connection.Write(packet);
+            byte[] packet = Connection.BuildPacket((byte)0x21, System.Text.Encoding.ASCII.GetBytes(Platform), System.Text.Encoding.ASCII.GetBytes(LodId), BitConverter.GetBytes(ad_id), Zero, Zero);
+            Connection.Write(packet);
         }
 
         protected void VoidRequest(byte type, List<byte> data)

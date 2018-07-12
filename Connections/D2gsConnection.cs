@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Net;
+using BattleNet.Logging;
 
 namespace BattleNet.Connections
 {
@@ -20,15 +21,15 @@ namespace BattleNet.Connections
             _packets.Clear();
             try
             {
-                Logging.Logger.Write("Connecting to {0}:{1}", server, port);
+                Logger.Write("Connecting to {0}:{1}", server, port);
                 _socket = new System.Net.Sockets.TcpClient();
                 _socket.Connect(server, port);
                 _stream = _socket.GetStream();
-                Logging.Logger.Write(" Connected");
+                Logger.Write(" Connected");
             }
             catch
             {
-                Logging.Logger.Write(" Failed To connect");
+                Logger.Write(" Failed To connect");
                 return false;
             }
             OnStartThread();

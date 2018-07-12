@@ -152,7 +152,7 @@ namespace BattleNet.Connections
             };
             _d2gsHandler.PlayerEnters += delegate(Player player)
             {
-                Logging.Logger.Write("Adding new Player {0}", player.Name);
+                Logger.Write("Adding new Player {0}", player.Name);
                 if (_gameThread.GameData.Players.ContainsKey(player.Id))
                 {
                     _gameThread.GameData.Players[player.Id] = player;
@@ -164,7 +164,7 @@ namespace BattleNet.Connections
             };
             _d2gsHandler.InitMe += delegate(Player player)
             {
-                Logging.Logger.Write("Initializing Self");
+                Logger.Write("Initializing Self");
                 _gameThread.GameData.Me = player;
             };
             _d2gsHandler.UpdateNpcMovement += delegate(UInt32 id, Coordinate coord, bool moving, bool running)
@@ -183,14 +183,14 @@ namespace BattleNet.Connections
             };
             _d2gsHandler.UpdateNpcState += delegate(UInt32 id, Coordinate coord, byte life)
             {
-                //Logging.Logger.Write("Updating NPC {0}, ({1},{2}), Life:{3}", id, coord.X, coord.Y, life);
+                //Logger.Write("Updating NPC {0}, ({1},{2}), Life:{3}", id, coord.X, coord.Y, life);
                 NpcEntity npc = _gameThread.GameData.Npcs[id];
                 npc.Location = coord;
                 npc.Life = life;
             };
             _d2gsHandler.MercUpdateEvent += delegate(UInt32 id, UInt32 mercId)
             {
-                Logging.Logger.Write("Mercenary for 0x{0:X} found your id: 0x{1:X}", id, _gameThread.GameData.Me.Id);
+                Logger.Write("Mercenary for 0x{0:X} found your id: 0x{1:X}", id, _gameThread.GameData.Me.Id);
                 if (id == _gameThread.GameData.Me.Id)
                 {
                     _gameThread.GameData.Me.MercenaryId = mercId;
@@ -206,7 +206,7 @@ namespace BattleNet.Connections
 
             _d2gsHandler.PortalUpdateEvent += delegate(UInt32 ownerId, UInt32 portalId)
             {
-                Logging.Logger.Write("Town Portal belonging to 0x{0:X} found ", ownerId);
+                Logger.Write("Town Portal belonging to 0x{0:X} found ", ownerId);
                 if (ownerId == _gameThread.GameData.Me.Id)
                 {
                     _gameThread.GameData.Me.PortalId = portalId;
@@ -222,7 +222,7 @@ namespace BattleNet.Connections
 
             _d2gsHandler.UpdateSkillLevel += delegate(Skills.Type skill, byte level)
             {
-                Logging.Logger.Write("Adding new Skill {0}:{1}", skill, level);
+                Logger.Write("Adding new Skill {0}:{1}", skill, level);
                 _gameThread.GameData.SkillLevels.Add(skill, level);
             };
 
@@ -264,15 +264,15 @@ namespace BattleNet.Connections
             {
                 lock (_gameThread.GameData.Items)
                 {
-                    if (_gameThread.GameData.Items.ContainsKey(item.id))
-                        _gameThread.GameData.Items[item.id] = item;
+                    if (_gameThread.GameData.Items.ContainsKey(item.Id))
+                        _gameThread.GameData.Items[item.Id] = item;
                     else
-                        _gameThread.GameData.Items.Add(item.id, item);
+                        _gameThread.GameData.Items.Add(item.Id, item);
                     
                 }
-                if (!item.ground && !item.unspecified_directory)
+                if (!item.Ground && !item.UnspecifiedDirectory)
                 {
-                    switch (item.container)
+                    switch (item.Container)
                     {
                         case Item.ContainerType.inventory:
                             _gameThread.GameData.Inventory.Add(item);
@@ -293,7 +293,7 @@ namespace BattleNet.Connections
 
             _d2gsHandler.AddNpcEvent += delegate(NpcEntity npc)
             {
-                //Logging.Logger.Write("Adding new NPC {0}", npc);
+                //Logger.Write("Adding new NPC {0}", npc);
                 if (_gameThread.GameData.Npcs.ContainsKey(npc.Id))
                     _gameThread.GameData.Npcs[npc.Id] = npc;
                 else
@@ -335,7 +335,7 @@ namespace BattleNet.Connections
         public void Init(IPAddress ip, ushort port, List<byte> data)
         {
             _gameThread.GameData.Init();
-            Logging.Logger.Write("Initializing D2GS");
+            Logger.Write("Initializing D2GS");
             if (!_d2gsConnection.Init(ip, port, data))
             {
                 _d2gsReader.Die();

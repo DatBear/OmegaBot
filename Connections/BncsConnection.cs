@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BattleNet.Connections.Readers;
-using System.Threading;
-using BattleNet.Connections.Handlers;
 using System.Net;
+using BattleNet.Logging;
 
 namespace BattleNet.Connections
 { 
@@ -27,13 +23,13 @@ namespace BattleNet.Connections
         {
             //_owner.GameRequestId = 0x02;
             //_owner.InGame = false;
-            Logging.Logger.Write("[BNCS] Connecting to {0}:{1}", server, port);
+            Logger.Write("[BNCS] Connecting to {0}:{1}", server, port);
             // Establish connection
             _socket.Connect(server, port);
             _stream = _socket.GetStream();
             if (!_stream.CanWrite)
             {
-                Logging.Logger.Write("Failed To connect to {0}:{1}", server, port);
+                Logger.Write("Failed To connect to {0}:{1}", server, port);
                 return false;
             }
 
@@ -47,11 +43,8 @@ namespace BattleNet.Connections
         {
             while (bncsBuffer.Count < 4)
             {
-                try
-                {
-                    byte temp = 0;
-
-                    temp = (byte)_stream.ReadByte();
+                try {
+                    var temp = (byte)_stream.ReadByte();
                     bncsBuffer.Add(temp);
                 }
                 catch

@@ -7,10 +7,8 @@ namespace BattleNet
 {
     class Globals
     {
-        protected static String _binaryDirectory = "data";
-        public static String BinaryDirectory { get { return _binaryDirectory; } set { _binaryDirectory = value; } }
-
-        public static ushort GsPort { get { return (4000); } set { } }
+        public static String BinaryDirectory { get; set; } = "data";
+        public static ushort GsPort => 4000;
 
         public enum ActType
         {

@@ -22,8 +22,8 @@ namespace BattleNet.Connections
                 List<byte> packet = new List<byte>();
                 packet.Add(0x6d);
                 packet.AddRange(BitConverter.GetBytes((uint)System.Environment.TickCount));
-                packet.AddRange(GenericHandler.nulls);
-                packet.AddRange(GenericHandler.nulls);
+                packet.AddRange(GenericHandler.Nulls);
+                packet.AddRange(GenericHandler.Nulls);
                 _connection.Write(packet.ToArray());
 
                 int sleepStep = 100;

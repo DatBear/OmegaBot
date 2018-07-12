@@ -11,47 +11,46 @@ namespace BattleNet.Logging.IRC
 {
     class Bot
     {
-        protected String _server;
-        protected UInt16 _port;
-        protected String _user;
-        protected String _nickname;
-        protected String _channel;
+        protected String Server;
+        protected UInt16 Port;
+        protected String User;
+        protected String Nickname;
+        protected String Channel;
 
-        protected NetworkStream _stream;
-        protected TcpClient _socket;
+        protected NetworkStream Stream;
+        protected TcpClient Socket;
 
-        protected StreamWriter _writer;
-        public StreamWriter Writer { get { return _writer; } }
+        public StreamWriter Writer { get; protected set; }
 
         public void Init(String server, UInt16 port, String nickname, String channel)
         {
-            _server = server;
-            _port = port;
-            _nickname = nickname;
-            _channel = channel;
-            _user = "USER D2Bot" + _nickname + " 8 * :Clientless Bot outputter";
+            Server = server;
+            Port = port;
+            Nickname = nickname;
+            Channel = channel;
+            User = "USER D2Bot" + Nickname + " 8 * :Clientless Bot outputter";
         }
 
         public void Connect()
         {
-            _socket = new TcpClient(_server, _port);
+            Socket = new TcpClient(Server, Port);
             Thread pingThread = new Thread(PingThread);
-            _stream = _socket.GetStream();
-            _writer = new StreamWriter(_stream);
-            _writer.AutoFlush = true;
+            Stream = Socket.GetStream();
+            Writer = new StreamWriter(Stream);
+            Writer.AutoFlush = true;
             pingThread.Start();
-            _writer.WriteLine(_user);
-            _writer.Flush();
-            _writer.WriteLine("NICK " + _nickname); _writer.Flush();
-            _writer.WriteLine("JOIN " + _channel);
-            _writer.Flush();
+            Writer.WriteLine(User);
+            Writer.Flush();
+            Writer.WriteLine("NICK " + Nickname); Writer.Flush();
+            Writer.WriteLine("JOIN " + Channel);
+            Writer.Flush();
             Thread.Sleep(10000);
             Console.WriteLine("Connected to IRC");
         }
 
         public void Write(String str)
         {
-            _writer.WriteLine("PRIVMSG " + _channel + " " +  str);
+            Writer.WriteLine("PRIVMSG " + Channel + " " +  str);
         }
 
         private Bot()
@@ -67,10 +66,10 @@ namespace BattleNet.Logging.IRC
 
         private void PingThread()
         {
-            while (_socket.Connected)
+            while (Socket.Connected)
             {
-                Writer.WriteLine("PING " + _server);
-                _writer.Flush();
+                Writer.WriteLine("PING " + Server);
+                Writer.Flush();
                 Thread.Sleep(15000);
             }
         }

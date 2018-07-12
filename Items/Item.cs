@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
+// ReSharper disable CheckNamespace
+// ReSharper disable InconsistentNaming
 
 namespace BattleNet
 {
@@ -13,7 +15,7 @@ namespace BattleNet
         public String Type;
         public Item.ClassificationType Classification;
         public UInt16 Width, Height;
-        public Boolean Stackable, Usable, Throwable;
+        public bool Stackable, Usable, Throwable;
 
         public ItemEntry()
         {
@@ -86,12 +88,12 @@ namespace BattleNet
     {
         public Item()
         {
-            prefixes = new List<uint>();
-            suffixes = new List<uint>();
-            properties = new List<PropertyType>();
+            Prefixes = new List<uint>();
+            Suffixes = new List<uint>();
+            Properties = new List<PropertyType>();
             sockets = UInt32.MaxValue;
         }
-        public byte[] packet;
+        public byte[] Packet;
 
         public UInt32 action;
 
@@ -110,85 +112,85 @@ namespace BattleNet
 
 
 
-        public UInt16 width;
-        public UInt16 height;
+        public UInt16 Width;
+        public UInt16 Height;
 
-        public UInt32 category;
-        public UInt32 id;
-        public bool equipped;
-        public bool in_socket;
-        public bool identified;
-        public bool switched_in;
-        public bool switched_out;
-        public bool broken;
-        public bool potion;
+        public UInt32 Category;
+        public UInt32 Id;
+        public bool Equipped;
+        public bool InSocket;
+        public bool Identified;
+        public bool SwitchedIn;
+        public bool SwitchedOut;
+        public bool Broken;
+        public bool Potion;
         
-        public bool in_store;
-        public bool not_in_a_socket;
-        public bool ear;
-        public bool start_item;
-        public bool simple_item;
+        public bool InStore;
+        public bool NotInASocket;
+        public bool Ear;
+        public bool StartItem;
+        public bool SimpleItem;
        
-        public bool personalised;
-        public bool gambling;
-        public bool rune_word;
+        public bool Personalised;
+        public bool Gambling;
+        public bool RuneWord;
 
-        public bool ground;
+        public bool Ground;
 
-        public VersionType version;
+        public VersionType Version;
 
-        public bool unspecified_directory;
-        public UInt32 x;
-        public UInt32 y;
-        public UInt32 directory;
-        public ContainerType container;
+        public bool UnspecifiedDirectory;
+        public UInt32 X;
+        public UInt32 Y;
+        public UInt32 Directory;
+        public ContainerType Container;
 
         //public GameData.CharacterClassType ear_character_class;
-        public UInt32 ear_level;
-        public String ear_name;
+        public UInt32 EarLevel;
+        public String EarName;
         
 
-        public bool is_gold;
-        public UInt32 amount;
+        public bool IsGold;
+        public UInt32 Amount;
 
-        public UInt32 used_sockets;
-        public UInt32 level;
+        public UInt32 UsedSockets;
+        public UInt32 Level;
 
-        public bool has_graphic;
-        public UInt32 graphic;
+        public bool HasGraphic;
+        public UInt32 Graphic;
 
-        public bool has_colour;
-        public UInt32 colour;
+        public bool HasColour;
+        public UInt32 Colour;
 
-        public UInt32 prefix;
-        public UInt32 suffix;
+        public UInt32 Prefix;
+        public UInt32 Suffix;
 
-        public List<UInt32> prefixes;
-        public List<UInt32> suffixes;
+        public readonly List<UInt32> Prefixes;
+        public readonly List<UInt32> Suffixes;
 
-        public SuperiorItemClassType superiority;
+        public SuperiorItemClassType Superiority;
 
-        public UInt32 set_code;
-        public UInt32 unique_code;
+        public UInt32 SetCode;
+        public UInt32 UniqueCode;
 
-        public UInt32 runeword_id;
-        public UInt32 runeword_parameter;
+        public UInt32 RunewordId;
+        public UInt32 RunewordParameter;
 
-        public String personalised_name;
+        public String PersonalisedName;
 
-        public bool is_armor;
-        public bool is_weapon;
-        public UInt32 defense;
+        public bool IsArmor;
+        public bool IsWeapon;
+        public UInt32 Defense;
 
-        public UInt32 indestructible;
-        public UInt32 durability;
-        public UInt32 maximu_durability;
+        public UInt32 Indestructible;
+        public UInt32 Durability;
+        public UInt32 MaximumDurability;
 
         
 
-        public List<PropertyType> properties;
+        public List<PropertyType> Properties;
 
-
+        //lmfao what?
 	    public static bool operator<(Item first, Item other)
         {
             return false;
@@ -201,26 +203,26 @@ namespace BattleNet
 
         public class PropertyType
         {
-            ite_stat_type stat;
-            Int32 value;
+            ItemStatType _stat;
+            Int32 _value;
 
-            UInt32 minimum;
-            UInt32 maximum;
-            UInt32 length;
+            UInt32 _minimum;
+            UInt32 _maximum;
+            UInt32 _length;
 
-            UInt32 level;
-            UInt32 character_class;
-            UInt32 skill;
-            UInt32 tab;
+            UInt32 _level;
+            UInt32 _characterClass;
+            UInt32 _skill;
+            UInt32 _tab;
 
-            UInt32 monster;
+            UInt32 _monster;
 
-            UInt32 charges;
-            UInt32 maximu_charges;
+            UInt32 _charges;
+            UInt32 _maximumCharges;
 
-            UInt32 skill_chance;
+            UInt32 _skillChance;
 
-            UInt32 per_level;
+            UInt32 _perLevel;
 
             PropertyType()
             {
@@ -311,12 +313,12 @@ namespace BattleNet
             swap_in_belt = 0x10,
             auto_unequip = 0x11,
             to_cursor = 0x12,
-            ite_in_socket = 0x13,
+            item_in_socket = 0x13,
             update_stats = 0x15,
             weapon_switch = 0x17
         };
 
-        public enum ite_container_gc_type
+        public enum ItemContainerGcType
         {
             inventory = 0,
             trade = 2,
@@ -324,7 +326,7 @@ namespace BattleNet
             stash = 4,
         };
 
-        public enum ite_destination_type
+        public enum ItemDestinationType
         {
             unspecified = 0,
             equipment = 1,
@@ -410,7 +412,7 @@ namespace BattleNet
             wand
         };
 
-        public enum ite_stat_type
+        public enum ItemStatType
         {
             strength,
             energy,
@@ -419,24 +421,24 @@ namespace BattleNet
             all_attributes,
             new_skills,
             life,
-            maximu_life,
+            maximum_life,
             mana,
-            maximu_mana,
+            maximum_mana,
             stamina,
-            maximu_stamina,
+            maximum_stamina,
             level,
             experience,
             gold,
             bank,
             enhanced_defense,
-            enhanced_maximu_damage,
+            enhanced_maximum_damage,
             enhanced_minimu_damage,
             attack_rating,
             increased_blocking,
             minimu_damage,
-            maximu_damage,
+            maximum_damage,
             secondary_minimu_damage,
-            secondary_maximu_damage,
+            secondary_maximum_damage,
             enhanced_damage,
             mana_recovery,
             mana_recovery_bonus,
@@ -450,34 +452,34 @@ namespace BattleNet
             magical_damage_reduction,
             damage_reduction_percent,
             magical_damage_reduction_percent,
-            maximu_magical_damage_reduction_percent,
+            maximum_magical_damage_reduction_percent,
             fire_resistance,
-            maximu_fire_resistance,
+            maximum_fire_resistance,
             lightning_resistance,
-            maximu_lightning_resistance,
+            maximum_lightning_resistance,
             cold_resistance,
-            maximu_cold_resistance,
+            maximum_cold_resistance,
             poison_resistance,
-            maximu_poison_resistance,
+            maximum_poison_resistance,
             damage_aura,
             minimu_fire_damage,
-            maximu_fire_damage,
+            maximum_fire_damage,
             minimu_lightning_damage,
-            maximu_lightning_damage,
+            maximum_lightning_damage,
             minimu_magical_damage,
-            maximu_magical_damage,
+            maximum_magical_damage,
             minimu_cold_damage,
-            maximu_cold_damage,
+            maximum_cold_damage,
             cold_damage_length,
             minimu_poison_damage,
-            maximu_poison_damage,
+            maximum_poison_damage,
             poison_damage_length,
             minimu_life_stolen_per_hit,
-            maximu_life_stolen_per_hit,
+            maximum_life_stolen_per_hit,
             minimu_mana_stolen_per_hit,
-            maximu_mana_stolen_per_hit,
+            maximum_mana_stolen_per_hit,
             minimu_stamina_drain,
-            maximu_stamina_drain,
+            maximum_stamina_drain,
             stun_length,
             velocity_percent,
             attack_rate,
@@ -485,9 +487,9 @@ namespace BattleNet
             quantity,
             value,
             durability,
-            maximu_durability,
+            maximum_durability,
             replenish_life,
-            enhanced_maximu_durability,
+            enhanced_maximum_durability,
             enhanced_life,
             enhanced_mana,
             attacker_takes_damage,
@@ -545,7 +547,7 @@ namespace BattleNet
             lifetap_level,
             thorns_percent,
             bone_armor,
-            maximu_bone_armor,
+            maximum_bone_armor,
             freezes_target,
             open_wounds,
             crushing_blow,
@@ -572,7 +574,7 @@ namespace BattleNet
             fires_magic_arrows,
             fire_explosive_arrows,
             minimu_throwing_damage,
-            maximu_throwing_damage,
+            maximum_throwing_damage,
             skill_hand_of_athena,
             skill_stamina_percent,
             skill_passive_stamina_percent,
@@ -589,7 +591,7 @@ namespace BattleNet
             target_1,
             gold_lost,
             conversion_level,
-            conversion_maximu_life,
+            conversion_maximum_life,
             unit_do_overlay,
             attack_rating_against_monster_type,
             damage_to_monster_type,
@@ -630,18 +632,18 @@ namespace BattleNet
             enhanced_defense_per_level,
             life_per_level,
             mana_per_level,
-            maximu_damage_per_level,
-            maximu_enhanced_damage_per_level,
+            maximum_damage_per_level,
+            maximum_enhanced_damage_per_level,
             strength_per_level,
             dexterity_per_level,
             energy_per_level,
             vitality_per_level,
             attack_rating_per_level,
             bonus_to_attack_rating_per_level,
-            maximu_cold_damage_per_level,
-            maximu_fire_damage_per_level,
-            maximu_lightning_damage_per_level,
-            maximu_poison_damage_per_level,
+            maximum_cold_damage_per_level,
+            maximum_fire_damage_per_level,
+            maximum_lightning_damage_per_level,
+            maximum_poison_damage_per_level,
             cold_resistance_per_level,
             fire_resistance_per_level,
             lightning_resistance_per_level,
@@ -652,7 +654,7 @@ namespace BattleNet
             poison_absorption_per_level,
             thorns_per_level,
             extra_gold_per_level,
-            better_chance_of_getting_magic_ite_per_level,
+            better_chance_of_getting_magic_item_per_level,
             stamina_regeneration_per_level,
             stamina_per_level,
             damage_to_demons_per_level,
@@ -684,18 +686,18 @@ namespace BattleNet
             enhanced_defense_per_time,
             life_per_time,
             mana_per_time,
-            maximu_damage_per_time,
-            maximu_enhanced_damage_per_time,
+            maximum_damage_per_time,
+            maximum_enhanced_damage_per_time,
             strength_per_time,
             dexterity_per_time,
             energy_per_time,
             vitality_per_time,
             attack_rating_per_time,
             chance_to_hit_per_time,
-            maximu_cold_damage_per_time,
-            maximu_fire_damage_per_time,
-            maximu_lightning_damage_per_time,
-            maximu_damage_per_poison,
+            maximum_cold_damage_per_time,
+            maximum_fire_damage_per_time,
+            maximum_lightning_damage_per_time,
+            maximum_damage_per_poison,
             cold_resistance_per_time,
             fire_resistance_per_time,
             lightning_resistance_per_time,
@@ -705,7 +707,7 @@ namespace BattleNet
             lightning_absorption_per_time,
             poison_absorption_per_time,
             extra_gold_per_time,
-            better_chance_of_getting_magic_ite_per_time,
+            better_chance_of_getting_magic_item_per_time,
             regenerate_stamina_per_time,
             stamina_per_time,
             damage_to_demons_per_time,
@@ -729,7 +731,7 @@ namespace BattleNet
             enhanced_defense_vs_monsters,
             fire_damage_length,
             minimu_fire_damage_length,
-            maximu_fire_damage_length,
+            maximum_fire_damage_length,
             progressive_damage,
             progressive_steal,
             progressive_other,
@@ -768,12 +770,10 @@ namespace BattleNet
             source_unit_type,
             source_unit_id,
             short_parameter_1,
-            quest_ite_difficulty,
+            quest_item_difficulty,
             passive_magical_damage_mastery,
             passive_magical_resistance_reduction
         };
-
-       
-
+        
     }
 }

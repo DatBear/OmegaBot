@@ -48,11 +48,11 @@ namespace BattleNet
 		        "monster_names.txt",
 		        "monster_fields.txt",
 		        "super_uniques.txt",
-		        "ite_properties.txt",
+		        "item_properties.txt",
 		        "skills.txt"
             };
 
-            String itemDataFile = Path.Combine(dataDirectory, "ite_data.txt");
+            String itemDataFile = Path.Combine(dataDirectory, "item_data.txt");
             _itemData = new ItemDataType(itemDataFile);
             _experiences = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[0]));
             _magicalPrefixes = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[1]));
@@ -65,8 +65,6 @@ namespace BattleNet
             _superUniques = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[8]));
             _itemProperties = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[9]));
             _skills = new PlainTextDataType(Path.Combine(dataDirectory, fileNames[10]));
-
-            return;
         }
 
     }
@@ -169,21 +167,21 @@ namespace BattleNet
                     }
                     String name = tokens[0];
                     String code = tokens[1];
-                    String classification_string = tokens[2];
+                    String classificationString = tokens[2];
                     UInt16 width = UInt16.Parse(tokens[3]);
                     UInt16 height = UInt16.Parse(tokens[4]);
                     bool stackable = UInt32.Parse(tokens[5]) != 0;
                     bool usable = UInt32.Parse(tokens[6]) != 0;
                     bool throwable = UInt32.Parse(tokens[7]) != 0;
                     Item.ClassificationType classification;
-                    if (!classificationMap.TryGetValue(classification_string, out classification))
+                    if (!classificationMap.TryGetValue(classificationString, out classification))
                         throw new Exception("Unable to parse item classification");
                     ItemEntry i = new ItemEntry(name, code, classification, width, height, stackable, usable, throwable);
                     _items.Add(i);
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Error parsing ItemDataType: {0}", e.ToString());
+                    Console.WriteLine("Error parsing ItemDataType: {0}", e);
                 }
             }
         }
