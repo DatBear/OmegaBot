@@ -159,7 +159,7 @@ namespace BattleNet
             Pickit.InitializePickit();
 
             
-            if (!Settings.Instance.init(args))
+            if (!Settings.Instance.Init(args))
             {
                 System.Console.WriteLine("could not parse config file");
                 return;

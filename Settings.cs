@@ -4,25 +4,22 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Xml.Serialization;
+using BattleNet.Configuration;
+using BattleNet.Logging;
+using Newtonsoft.Json;
 
-namespace BattleNet
-{
-    class Settings
-    {
+namespace BattleNet {
+    class Settings {
         private static Settings instance;
         private static object syncRoot = new Object();
-        SerializableDictionary<String, String> m_data = new SerializableDictionary<String, String>();
-        private String m_filename;
+        BotConfiguration _data = new BotConfiguration();
+        private String _filename;
         private Settings() { }
 
-        public static Settings Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    lock (syncRoot)
-                    {
+        public static Settings Instance {
+            get {
+                if (instance == null) {
+                    lock (syncRoot) {
                         if (instance == null)
                             instance = new Settings();
                     }
@@ -32,215 +29,124 @@ namespace BattleNet
             }
         }
 
-        public bool init(String[] args)
-        {
-            m_filename = "OmegaBot.xml";
+        public bool Init(String[] args) {
+            _filename = "OmegaBot.json";
             if (args.Count() == 1)
-                m_filename = args[0];
+                _filename = args[0];
             Load();
             Save();
             return Validate();
         }
 
-        public bool Validate()
-        {
-            return m_data.ContainsKey("cdkey_d2") && m_data.ContainsKey("cdkey_d2exp") && m_data.ContainsKey("cdkey_user") 
-                && m_data.ContainsKey("battlenet_account_name") && m_data.ContainsKey("battlenet_account_password");
+        public bool Validate() {
+            return !string.IsNullOrEmpty(CdKeyD2()) && !string.IsNullOrEmpty(CdKeyD2Exp()) && !string.IsNullOrEmpty(BattlenetAccountName())
+                   && !string.IsNullOrEmpty(BattlenetAccountPassword());
         }
 
-        private String GetString(String name, String default_value)
-        {
-            String ret;
-            try
-            {
-                ret = GetString(name);
-            }
-            catch
-            {
-                ret = default_value;
-            }
-            return ret;
-        }
-
-        private String GetString(String name)
-        {
-            if (!m_data.ContainsKey(name))
-            {
-                throw new Exception("could not get " + name);
-            }
-            return m_data[name];
-        }
-
-
-        private Int32 GetInt(String name, Int32 default_value)
-        {
-            Int32 ret;
-            try
-            {
-                ret = GetInt(name);
-            }
-            catch
-            {
-                ret = default_value;
-            }
-            return ret;
-        }
-
-        private Int32 GetInt(String name)
-        {
-            if (!m_data.ContainsKey(name))
-            {
-                throw new Exception("could not get " + name);
-            }
-            return Int32.Parse(m_data[name]);
-        }
-
-        private bool GetBool(String name, bool default_value)
-        {
-            bool ret;
-            try
-            {
-                ret = GetBool(name);
-            }
-            catch
-            {
-                ret = default_value;
-            }
-            return ret;
-        }
-
-        private bool GetBool(String name)
-        {
-            if (!m_data.ContainsKey(name))
-            {
-                throw new Exception("could not get " + name);
-            }
-            return m_data[name].Contains("1") || m_data[name].ToLower().Contains("true") || m_data[name].ToLower().Contains("on");
-        }
-
-        private bool Load() 
-        {
+        private bool Load() {
             bool success = true;
-            try
-            {
-                FileStream fs = new FileStream(m_filename, FileMode.Open);
-                XmlSerializer x = new XmlSerializer(typeof(SerializableDictionary<String, String>));
-                m_data = (SerializableDictionary<String, String>)x.Deserialize(fs);
-                fs.Close();
+            try {
+                var rawConfig = File.ReadAllText(_filename);
+                _data = JsonConvert.DeserializeObject<BotConfiguration>(rawConfig);
+                Logger.Write(_data.ToString());
+                //FileStream fs = new FileStream(_filename, FileMode.Open);
+                //XmlSerializer x = new XmlSerializer(typeof(SerializableDictionary<String, String>));
+                //_data = (SerializableDictionary<String, String>)x.Deserialize(fs);
+                //fs.Close();
             }
-            catch
-            {
+            catch {
                 success = false;
             }
-            return success;  
+            return success;
         }
 
         private bool Save() {
             bool success = true;
-            try
-            {
-                XmlSerializer x = new XmlSerializer(typeof(SerializableDictionary<String, String>));
-                TextWriter writer = new StreamWriter(m_filename);
-                x.Serialize(writer, m_data);
-                writer.Close();
+            try {
+                var data = JsonConvert.SerializeObject(_data);
+                File.WriteAllText(_filename, data);
+
+                //XmlSerializer x = new XmlSerializer(typeof(SerializableDictionary<String, String>));
+                //TextWriter writer = new StreamWriter(_filename);
+                //x.Serialize(writer, _data);
+                //writer.Close();
             }
-            catch
-            {
+            catch {
                 success = false;
             }
-            return success; 
+            return success;
         }
 
-        public bool KillPindle()
-        {
-            return GetBool("kill_pindle", true);
+        public bool KillPindle() {
+            return _data.GameOptions.BossOptions.Pindle;
         }
 
-        public bool KillShenk()
-        {
-            return GetBool("kill_shenk", true);
+        public bool KillShenk() {
+            return _data.GameOptions.BossOptions.Shenk;
         }
 
-        public bool KillEldrich()
-        {
-            return GetBool("kill_eldrich", false);
+        public bool KillEldrich() {
+            return _data.GameOptions.BossOptions.Eldritch;
         }
 
-        public bool ResurrectMercenary()
-        {
-            return GetBool("resurrect_mercenary", true);
+        public bool ResurrectMercenary() {
+            return _data.GameOptions.ResurrectMercenary;
         }
 
-        public String CdKeyUser()
-        {
-            return GetString("cdkey_user", "OmegaBot");
+        public String CdKeyUser() {
+            return _data.CdKeyOptions.User ?? "Omega";
         }
 
-        public String CdKeyD2()
-        {
-            return GetString("cdkey_d2");
+        public String CdKeyD2() {
+            return _data.CdKeyOptions.D2;
         }
 
-        public String CdKeyD2Exp()
-        {
-            return GetString("cdkey_d2exp");
+        public String CdKeyD2Exp() {
+            return _data.CdKeyOptions.D2Exp;
         }
 
-        public String BattlenetGateway()
-        {
-            return GetString("battlenet_gateway", "europe.battle.net");
+        public String BattlenetGateway() {
+            return _data.AccountOptions.Gateway;
         }
 
-        public String BattlenetAccountName()
-        {
-            return GetString("battlenet_account_name");
+        public String BattlenetAccountName() {
+            return _data.AccountOptions.Name;
         }
 
-        public String BattlenetAccountPassword()
-        {
-            return GetString("battlenet_account_password");
+        public String BattlenetAccountPassword() {
+            return _data.AccountOptions.Password;
         }
 
-        public String BattlenetAccountCharacter()
-        {
-            return GetString("battlenet_account_character");
+        public string BattlenetAccountCharacter() {
+            return _data.AccountOptions.CharacterName;
         }
 
-        public Int32 ChickenLeave()
-        {
-            return GetInt("chicken_leave", 150);
+        public int ChickenLeave() {
+            return _data.GameOptions.ChickenOptions.Leave;
         }
 
-        public Int32 ChickenPot()
-        {
-            return GetInt("chicken_pot", 350);
+        public int ChickenPot() {
+            return _data.GameOptions.ChickenOptions.Potion;
         }
 
-        public Int32 GameMinRuntime() {
-
-            return GetInt("game_min_runtime", 0);
+        public int GameMinRuntime() {
+            return _data.GameOptions.MinRuntime;
         }
 
-        public Int32 GameStartDelay()
-        {
-
-            return GetInt("game_start_delay", 35000);
+        public int GameStartDelay() {
+            return _data.GameOptions.StartDelay;
         }
 
-        public Client.GameDifficulty Difficulty()
-        {
+        public Client.GameDifficulty Difficulty() {
             Client.GameDifficulty ret;
-            String s = GetString("game_difficulty", "hell");
+            String difficulty = _data.GameOptions.Difficulty?.ToLower() ?? "hell";
 
-            if (s.ToLower().Contains("hell"))
-            {
+            if (difficulty.Contains("hell")) {
                 ret = Client.GameDifficulty.HELL;
             }
-
-            else if(s.ToLower().Contains("night")) {
+            else if (difficulty.Contains("night")) {
                 ret = Client.GameDifficulty.NIGHTMARE;
             }
-
             else {
                 ret = Client.GameDifficulty.NORMAL;
             }

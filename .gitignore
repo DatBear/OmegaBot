@@ -1,2 +1,7 @@
 *.exe
 *.log
+.vs/*
+bin/*
+obj/*
+packages/*
+OmegaBot.json

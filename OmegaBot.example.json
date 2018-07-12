@@ -1,0 +1,23 @@
+﻿{
+  "CdKeyOptions": {
+    "D2": "",
+    "D2Exp": "",
+    "User": ""
+  },
+  "AccountOptions": {
+    "Name": "",
+    "Password": "",
+    "Character": ""
+  },
+  "GameOptions": {
+    "ChickenOptions": {
+      "Potion": 900,
+      "Leave": 400,
+      "PotionPercent": 0,
+      "LeavePercent": 0 
+    },
+    "Difficulty": "normal",
+    "StartDelay": 5,
+    "ResurrectMercenary": false
+  }
+}
