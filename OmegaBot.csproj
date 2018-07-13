@@ -86,6 +86,7 @@
     <Compile Include="Connections\Readers\McpReader.cs" />
     <Compile Include="Connections\Handlers\BncsHandler.cs" />
     <Compile Include="Container.cs" />
+    <Compile Include="ContainerType.cs" />
     <Compile Include="Coordinate.cs" />
     <Compile Include="DataManager.cs" />
     <Compile Include="Entity.cs" />

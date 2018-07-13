@@ -40,7 +40,7 @@ namespace BattleNet
                 Logger.Write("Bot is in town.");
                 Thread.Sleep(3000);
 
-                StashItems();
+                //StashItems();
 
                 MoveToAct5();
                 /*
@@ -71,6 +71,7 @@ namespace BattleNet
         {
             _d2gsConnection.Write(_d2gsConnection.BuildPacket(command, args));
         }
+
         public void SendPacket(byte[] packet)
         {
             _d2gsConnection.Write(packet);
@@ -98,7 +99,7 @@ namespace BattleNet
             int time = Time();
             if (time - GameData.LastTeleport > 5)
             {
-                SendPacket(Actions.Relocate(target));             
+                SendPacket(Actions.Run(target));             
                 GameData.LastTeleport = time;
                 Thread.Sleep(120);
             }
@@ -133,8 +134,7 @@ namespace BattleNet
                 if (i.type == "tbk" || i.type == "cm1" || i.type == "cm2")
                     continue;
 
-                Coordinate stashLocation;
-                if (!GameData.Stash.FindFreeSpace(i, out stashLocation))
+                if (!GameData.Stash.FindFreeSpace(i, out var stashLocation))
                 {
                     continue;
                 }
@@ -143,11 +143,13 @@ namespace BattleNet
 
                 if (!onCursor)
                 {
-                    SendPacket(0x19, BitConverter.GetBytes(i.Id));
+                    SendPacket(Actions.ItemToCursor(i.Id));
                     Thread.Sleep(500);
                 }
 
-                SendPacket(0x18, BitConverter.GetBytes(i.Id), stashLocation.ToBytes(), new byte[] { 0x04, 0x00, 0x00, 0x00 });
+                var stashPacket = Actions.ItemToContainer(i.Id, stashLocation, ContainerType.Stash);
+                SendPacket(stashPacket);
+                //SendPacket(0x18, BitConverter.GetBytes(i.Id), stashLocation.ToBytes(), new byte[] { 0x04, 0x00, 0x00, 0x00 });
                 Thread.Sleep(400);
             }
         }
@@ -215,7 +217,8 @@ namespace BattleNet
         {
             if (GameData.CurrentAct == Globals.ActType.ACT_I)
             {
-                Logger.Write("Moving to Act 5");
+                Logger.Write($"Moving to Act 5, {GameData.Me.Location} -> {GameData.RogueEncampmentWp.Location}," +
+                             $"{GameData.Me.Location.Distance(GameData.RogueEncampmentWp.Location)}");
                 MoveTo(GameData.RogueEncampmentWp.Location);
                 byte[] temp = { 0x02, 0x00, 0x00, 0x00 };
                 SendPacket(0x13, temp, BitConverter.GetBytes(GameData.RogueEncampmentWp.Id));
@@ -250,7 +253,7 @@ namespace BattleNet
                     {
                         if (!Pickit.PickitMap.ContainsKey(i.type))
                             continue;
-                        if (GameData.Belt._items.Count >= 16 && i.type == "rvl")
+                        if (GameData.Belt.Items.Count >= 16 && i.type == "rvl")
                             continue;
                         if (Pickit.PickitMap[i.type](i))
                         {
@@ -397,7 +400,7 @@ namespace BattleNet
 
         public virtual bool UsePotion()
         {
-            Item pot = (from n in GameData.Belt._items
+            Item pot = (from n in GameData.Belt.Items
                         where n.type == "rvl"
                         select n).FirstOrDefault();
 
@@ -407,7 +410,7 @@ namespace BattleNet
                 return false;
             }
             SendPacket(0x26, BitConverter.GetBytes(pot.Id), GenericHandler.Nulls, GenericHandler.Nulls);
-            GameData.Belt._items.Remove(pot);
+            GameData.Belt.Items.Remove(pot);
             return true;
         }
 
@@ -520,12 +523,13 @@ namespace BattleNet
             return true;
         }
 
-        void EnterRedPortal()
-        {
+        bool EnterRedPortal() {
+            if (GameData.RedPortal == null) return false;
             Thread.Sleep(700);
             byte[] two = { 0x02, 0x00, 0x00, 0x00 };
             SendPacket(0x13, two, BitConverter.GetBytes(GameData.RedPortal.Id));
             Thread.Sleep(500);
+            return true;
         }
 
     }

@@ -68,28 +68,48 @@ namespace BattleNet.Connections
 
         public void SubscribeGameServerEvents()
         {
-            _d2gsHandler.UpdateActData += delegate(Globals.ActType act, Int32 mapId, Int32 areaId)
-            {
-                _gameThread.GameData.CurrentAct = act;
-                _gameThread.GameData.MapId = mapId;
-                _gameThread.GameData.AreaId = areaId;
+            _d2gsHandler.UpdateActData += OnUpdateActData;
+            _d2gsHandler.UpdateWorldObject += OnUpdateWorldObject;
+            _d2gsHandler.UpdateExperience += OnUpdateExperience;
+            _d2gsHandler.SetPlayerLevel += OnSetPlayerLevel;
+            _d2gsHandler.UpdateNpcLife += OnUpdateNpcLife;
+            _d2gsHandler.UpdatePlayerPosition += OnUpdatePlayerPosition;
+            _d2gsHandler.PlayerExited += OnPlayerExited;
+            _d2gsHandler.PlayerEnters += OnPlayerEnters;
+            _d2gsHandler.InitMe += OnInitMe;
+            _d2gsHandler.UpdateNpcMovement += OnUpdateNpcMovement;
+            _d2gsHandler.NpcMoveToTarget += OnNpcMoveToTarget;
+            _d2gsHandler.UpdateNpcState += OnUpdateNpcState;
+            _d2gsHandler.MercUpdateEvent += OnMercUpdateEvent;
+            _d2gsHandler.PortalUpdateEvent += OnPortalUpdateEvent;
+            _d2gsHandler.UpdateTimestamp += OnUpdateTimestamp;
+            _d2gsHandler.SwapWeaponSet += OnSwapWeaponSet;
+            _d2gsHandler.UpdateSkillLevel += OnUpdateSkillLevel;
+            _d2gsHandler.UpdateItemSkill += OnUpdateItemSkill;
+            _d2gsHandler.UpdateLife += OnUpdateLife;
+            _d2gsHandler.NewItem += OnNewItem;
+            _d2gsHandler.AddNpcEvent += OnAddNpcEvent;
+            _d2gsHandler.NpcTalkedEvent += OnNpcTalkedEvent;
+        }
 
-                if (!_gameThread.GameData.InGame)
-                {
-                    _gameThread._startRun.Set();
-                    _gameThread.GameData.InGame = true;
-                }
-            };
+        private void OnUpdateActData(Globals.ActType act, int mapId, int areaId) {
+            _gameThread.GameData.CurrentAct = act;
+            _gameThread.GameData.MapId = mapId;
+            _gameThread.GameData.AreaId = areaId;
 
-            _d2gsHandler.UpdateWorldObject += delegate(UInt16 type, WorldObject ent)
-            {
-                // Pindles portal
-                if (type == 0x003c)
-                {
-                    _gameThread.GameData.RedPortal = ent;
-                    Logger.Write("Received red portal ID and coordinates");
-                }
-                /*
+            if (!_gameThread.GameData.InGame) {
+                _gameThread._startRun.Set();
+                _gameThread.GameData.InGame = true;
+            }
+        }
+
+        private void OnUpdateWorldObject(ushort type, WorldObject ent) {
+            // Pindles portal
+            if (type == 0x003c) {
+                _gameThread.GameData.RedPortal = ent;
+                Logger.Write("Received red portal ID and coordinates");
+            }
+            /*
                 // A5 WP
                 if (type == 0x01ad)
                 {
@@ -101,210 +121,194 @@ namespace BattleNet.Connections
                         Console.WriteLine("{0}: [D2GS] Received A5 WP id and coordinates", Account);
                 }
                  */
-                // A1 WP
-                else if (type == 0x0077)
-                {
-                    _gameThread.GameData.RogueEncampmentWp = ent;
-                    Logger.Write("Received A1 WP id and coordinates");
+            // A1 WP
+            else if (type == 0x0077) {
+                _gameThread.GameData.RogueEncampmentWp = ent;
+                Logger.Write("Received A1 WP id and coordinates");
+            }
+            else {
+                if (_gameThread.GameData.WorldObjects.ContainsKey(ent.Id)) {
+                    _gameThread.GameData.WorldObjects[ent.Id] = ent;
                 }
-                else
-                {
-                    if(_gameThread.GameData.WorldObjects.ContainsKey(ent.Id))
-                    {
-                        _gameThread.GameData.WorldObjects[ent.Id] = ent;
-                    }
-                    else
-                    {
-                        _gameThread.GameData.WorldObjects.Add(ent.Id, ent);
-                    }
+                else {
+                    _gameThread.GameData.WorldObjects.Add(ent.Id, ent);
                 }
-            };
-            _d2gsHandler.UpdateExperience += delegate(UInt32 exp) { _gameThread.GameData.Experience += exp; };
-            _d2gsHandler.SetPlayerLevel += delegate(byte level) { _gameThread.GameData.Me.Level = level; };
-            _d2gsHandler.UpdateItemSkill += delegate(Skills.Type skill, byte level)
-            {
-                if(_gameThread.GameData.ItemSkillLevels.ContainsKey(skill))
-                {
-                    _gameThread.GameData.ItemSkillLevels[skill] += level;
-                }
-                else
-                {
-                    _gameThread.GameData.ItemSkillLevels.Add(skill,level);
-                }
-                
-            };
-            _d2gsHandler.UpdateNpcLife += delegate(UInt32 id, byte life)
-            {
-                _gameThread.GameData.Npcs[id].Life = life;
-            };
-            _d2gsHandler.UpdatePlayerPosition += delegate(UInt32 id, Coordinate coords, bool directoryKnown)
-            {
-                Player player = _gameThread.GameData.GetPlayer(id);
-                player.Location = coords;
-                player.DirectoryKnown = directoryKnown;
-            };
-            _d2gsHandler.PlayerExited += delegate(UInt32 id)
-            {
-                if (_gameThread.GameData.Players.ContainsKey(id))
-                {
-                    _gameThread.GameData.Players.Remove(id);
-                }
-            };
-            _d2gsHandler.PlayerEnters += delegate(Player player)
-            {
-                Logger.Write("Adding new Player {0}", player.Name);
-                if (_gameThread.GameData.Players.ContainsKey(player.Id))
-                {
-                    _gameThread.GameData.Players[player.Id] = player;
-                }
-                else
-                {
-                    _gameThread.GameData.Players.Add(player.Id, player);
-                }
-            };
-            _d2gsHandler.InitMe += delegate(Player player)
-            {
-                Logger.Write("Initializing Self");
-                _gameThread.GameData.Me = player;
-            };
-            _d2gsHandler.UpdateNpcMovement += delegate(UInt32 id, Coordinate coord, bool moving, bool running)
-            {
-                NpcEntity npc = _gameThread.GameData.Npcs[id];
-                npc.Location = coord;
-                npc.Moving = moving;
-                npc.Running = running;
-            };
-            _d2gsHandler.NpcMoveToTarget += delegate(UInt32 id, Coordinate coord, bool moving, bool running)
-            {
-                NpcEntity npc = _gameThread.GameData.Npcs[id];
-                npc.Location = coord;
-                npc.Moving = moving;
-                npc.Running = running;
-            };
-            _d2gsHandler.UpdateNpcState += delegate(UInt32 id, Coordinate coord, byte life)
-            {
-                //Logger.Write("Updating NPC {0}, ({1},{2}), Life:{3}", id, coord.X, coord.Y, life);
-                NpcEntity npc = _gameThread.GameData.Npcs[id];
-                npc.Location = coord;
-                npc.Life = life;
-            };
-            _d2gsHandler.MercUpdateEvent += delegate(UInt32 id, UInt32 mercId)
-            {
-                Logger.Write("Mercenary for 0x{0:X} found your id: 0x{1:X}", id, _gameThread.GameData.Me.Id);
-                if (id == _gameThread.GameData.Me.Id)
-                {
-                    _gameThread.GameData.Me.MercenaryId = mercId;
-                    _gameThread.GameData.Me.HasMecenary = true;
-                    _gameThread.GameData.HasMerc = true;
-                }
-                else
-                {
-                    _gameThread.GameData.Players[id].MercenaryId = mercId;
-                    _gameThread.GameData.Players[id].HasMecenary = true;
-                }
-            };
+            }
+        }
 
-            _d2gsHandler.PortalUpdateEvent += delegate(UInt32 ownerId, UInt32 portalId)
-            {
-                Logger.Write("Town Portal belonging to 0x{0:X} found ", ownerId);
-                if (ownerId == _gameThread.GameData.Me.Id)
-                {
-                    _gameThread.GameData.Me.PortalId = portalId;
-                }
-                else
-                {
-                    _gameThread.GameData.Players[ownerId].PortalId = portalId;
-                }
-            };
-            _d2gsHandler.UpdateTimestamp += delegate { _gameThread.GameData.LastTimestamp = (int)System.DateTime.Now.ToFileTimeUtc(); };
+        private void OnUpdateExperience(uint exp) {
+            _gameThread.GameData.Experience += exp;
+        }
 
-            _d2gsHandler.SwapWeaponSet += delegate { _gameThread.GameData.WeaponSet = _gameThread.GameData.WeaponSet == 0 ? 1 : 0; };
+        private void OnSetPlayerLevel(byte level) {
+            _gameThread.GameData.Me.Level = level;
+        }
 
-            _d2gsHandler.UpdateSkillLevel += delegate(Skills.Type skill, byte level)
-            {
-                Logger.Write("Adding new Skill {0}:{1}", skill, level);
-                _gameThread.GameData.SkillLevels.Add(skill, level);
-            };
+        private void OnUpdateNpcLife(uint id, byte life) {
+            _gameThread.GameData.Npcs[id].Life = life;
+        }
 
-            _d2gsHandler.UpdateItemSkill += delegate(Skills.Type skill, byte level)
-            {
-                _gameThread.GameData.ItemSkillLevels[(Skills.Type)skill] = level;
-            };
+        private void OnUpdatePlayerPosition(uint id, Coordinate coords, bool directoryKnown) {
+            Player player = _gameThread.GameData.GetPlayer(id);
+            player.Location = coords;
+            player.DirectoryKnown = directoryKnown;
+        }
 
-            _d2gsHandler.UpdateLife += delegate(UInt32 plife)
-            {
-                if (_gameThread.GameData.CurrentLife == 0)
-                    _gameThread.GameData.CurrentLife = plife;
+        private void OnPlayerExited(uint id) {
+            if (_gameThread.GameData.Players.ContainsKey(id)) {
+                _gameThread.GameData.Players.Remove(id);
+            }
+        }
 
-                if (plife < _gameThread.GameData.CurrentLife && plife > 0)
-                {
-                    UInt32 damage = _gameThread.GameData.CurrentLife - plife;
-                    Logger.Write("{0} damage was dealt to {1} ({2} left)", damage, _gameThread.GameData.Me.Name, plife);
-                    if (plife <= _gameThread.GameData.ChickenLife)
-                    {
-                        Logger.Write("Chickening with {0} left!", plife);
+        private void OnPlayerEnters(Player player) {
+            Logger.Write("Adding new Player {0}", player.Name);
+            if (_gameThread.GameData.Players.ContainsKey(player.Id)) {
+                _gameThread.GameData.Players[player.Id] = player;
+            }
+            else {
+                _gameThread.GameData.Players.Add(player.Id, player);
+            }
+        }
 
-                        Logger.Write("Leaving the game.");
-                        _gameThread.SendPacket((byte)0x69);
+        private void OnInitMe(Player player) {
+            Logger.Write("Initializing Self");
+            _gameThread.GameData.Me = player;
+        }
 
-                        Thread.Sleep(500);
-                        _d2gsConnection.Kill();
-                    }
-                    else if (plife <= _gameThread.GameData.PotLife)
-                    {
-                        Logger.Write("Attempting to use potion with {0} life left.", plife);
-                        _gameThread.UsePotion();
-                    }
-                }
+        private void OnUpdateNpcMovement(uint id, Coordinate coord, bool moving, bool running) {
+            _gameThread.GameData.Npcs.TryGetValue(id, out NpcEntity npc);
+            if (npc == null) return;
+            npc.Location = coord;
+            npc.Moving = moving;
+            npc.Running = running;
+        }
 
+        private void OnNpcMoveToTarget(uint id, Coordinate coord, bool moving, bool running) {
+            _gameThread.GameData.Npcs.TryGetValue(id, out NpcEntity npc);
+            if (npc == null) return;
+            npc.Location = coord;
+            npc.Moving = moving;
+            npc.Running = running;
+        }
+
+        private void OnUpdateNpcState(uint id, Coordinate coord, byte life) {
+            Logger.Write("Updating NPC {0}, ({1},{2}), Life:{3}", id, coord.X, coord.Y, life);
+            NpcEntity npc = _gameThread.GameData.Npcs[id];
+            npc.Location = coord;
+            npc.Life = life;
+        }
+
+        private void OnMercUpdateEvent(uint id, uint mercId) {
+            Logger.Write("Mercenary for 0x{0:X} found your id: 0x{1:X}", id, _gameThread.GameData.Me.Id);
+            if (id == _gameThread.GameData.Me.Id) {
+                _gameThread.GameData.Me.MercenaryId = mercId;
+                _gameThread.GameData.Me.HasMecenary = true;
+                _gameThread.GameData.HasMerc = true;
+            }
+            else {
+                _gameThread.GameData.Players.TryGetValue(id, out Player player);
+                Logger.Write("Mercenary for {0:X} found merc id: {1:X}", id, mercId);
+                if (player == null) return;
+                player.MercenaryId = mercId;
+                player.HasMecenary = true;
+            }
+        }
+
+        private void OnPortalUpdateEvent(uint ownerId, uint portalId) {
+            Logger.Write("Town Portal belonging to 0x{0:X} found ", ownerId);
+            if (ownerId == _gameThread.GameData.Me.Id) {
+                _gameThread.GameData.Me.PortalId = portalId;
+            }
+            else {
+                _gameThread.GameData.Players[ownerId].PortalId = portalId;
+            }
+        }
+
+        private void OnUpdateTimestamp() {
+            _gameThread.GameData.LastTimestamp = (int) System.DateTime.Now.ToFileTimeUtc();
+        }
+
+        private void OnSwapWeaponSet() {
+            _gameThread.GameData.WeaponSet = _gameThread.GameData.WeaponSet == 0 ? 1 : 0;
+        }
+
+        private void OnUpdateSkillLevel(Skills.Type skill, byte level) {
+            Logger.Write("Adding new Skill {0}:{1}", skill, level);
+            _gameThread.GameData.SkillLevels.Add(skill, level);
+        }
+
+        private void OnUpdateItemSkill(Skills.Type skill, byte level) {
+            //_gameThread.GameData.ItemSkillLevels[(Skills.Type) skill] = level;
+            if (_gameThread.GameData.ItemSkillLevels.ContainsKey(skill)) {
+                _gameThread.GameData.ItemSkillLevels[skill] += level;
+            }
+            else {
+                _gameThread.GameData.ItemSkillLevels.Add(skill, level);
+            }
+        }
+
+        private void OnUpdateLife(uint plife) {
+            if (_gameThread.GameData.CurrentLife == 0)
                 _gameThread.GameData.CurrentLife = plife;
-            };
 
-            _d2gsHandler.NewItem += delegate(Item item)
-            {
-                lock (_gameThread.GameData.Items)
-                {
-                    if (_gameThread.GameData.Items.ContainsKey(item.Id))
-                        _gameThread.GameData.Items[item.Id] = item;
-                    else
-                        _gameThread.GameData.Items.Add(item.Id, item);
-                    
-                }
-                if (!item.Ground && !item.UnspecifiedDirectory)
-                {
-                    switch (item.Container)
-                    {
-                        case Item.ContainerType.inventory:
-                            _gameThread.GameData.Inventory.Add(item);
-                            //Console.WriteLine("New Item in Inventory!");
-                            break;
-                        case Item.ContainerType.cube:
-                            _gameThread.GameData.Cube.Add(item);
-                            break;
-                        case Item.ContainerType.stash:
-                            _gameThread.GameData.Stash.Add(item);
-                            break;
-                        case Item.ContainerType.belt:
-                            _gameThread.GameData.Belt.Add(item);
-                            break;
-                    }
-                }
-            };
+            if (plife < _gameThread.GameData.CurrentLife && plife > 0) {
+                UInt32 damage = _gameThread.GameData.CurrentLife - plife;
+                Logger.Write("{0} damage was dealt to {1} ({2} left)", damage, _gameThread.GameData.Me.Name, plife);
+                if (plife <= _gameThread.GameData.ChickenLife) {
+                    Logger.Write("Chickening with {0} left!", plife);
 
-            _d2gsHandler.AddNpcEvent += delegate(NpcEntity npc)
-            {
-                //Logger.Write("Adding new NPC {0}", npc);
-                if (_gameThread.GameData.Npcs.ContainsKey(npc.Id))
-                    _gameThread.GameData.Npcs[npc.Id] = npc;
+                    Logger.Write("Leaving the game.");
+                    _gameThread.SendPacket((byte) 0x69);
+
+                    Thread.Sleep(500);
+                    _d2gsConnection.Kill();
+                }
+                else if (plife <= _gameThread.GameData.PotLife) {
+                    Logger.Write("Attempting to use potion with {0} life left.", plife);
+                    _gameThread.UsePotion();
+                }
+            }
+
+            _gameThread.GameData.CurrentLife = plife;
+        }
+
+        private void OnNewItem(Item item) {
+            lock (_gameThread.GameData.Items) {
+                if (_gameThread.GameData.Items.ContainsKey(item.Id))
+                    _gameThread.GameData.Items[item.Id] = item;
                 else
-                    _gameThread.GameData.Npcs.Add(npc.Id, npc);
-            };
+                    _gameThread.GameData.Items.Add(item.Id, item);
+            }
+            if (!item.Ground && !item.UnspecifiedDirectory) {
+                switch (item.Container) {
+                    case Item.ContainerType.inventory:
+                        _gameThread.GameData.Inventory.Add(item);
+                        //Console.WriteLine("New Item in Inventory!");
+                        break;
+                    case Item.ContainerType.cube:
+                        _gameThread.GameData.Cube.Add(item);
+                        break;
+                    case Item.ContainerType.stash:
+                        _gameThread.GameData.Stash.Add(item);
+                        break;
+                    case Item.ContainerType.belt:
+                        _gameThread.GameData.Belt.Add(item);
+                        break;
+                }
+            }
+        }
 
-            _d2gsHandler.NpcTalkedEvent += delegate 
-            {
-                Logger.Write("Talked to NPC");
-                _gameThread.GameData.TalkedToNpc = true; 
-            };
+        private void OnAddNpcEvent(NpcEntity npc) {
+            //Logger.Write("Adding new NPC {0}", npc);
+            if (_gameThread.GameData.Npcs.ContainsKey(npc.Id))
+                _gameThread.GameData.Npcs[npc.Id] = npc;
+            else
+                _gameThread.GameData.Npcs.Add(npc.Id, npc);
+        }
+
+        private void OnNpcTalkedEvent() {
+            Logger.Write("Talked to NPC");
+            _gameThread.GameData.TalkedToNpc = true;
         }
 
         public void SubscribeNextGameEvent(D2gsReader.NoParam sub)

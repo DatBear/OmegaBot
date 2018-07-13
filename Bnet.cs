@@ -148,9 +148,13 @@ namespace BattleNet
             _mcpHandler.JoinGame(gameName, gamePass);
         }
 
-        public void MakeGame(Client.GameDifficulty difficulty, String gameName, String gamePass)
+        public void MakeGame(Client.GameDifficulty difficulty, string gameName, string gamePass)
         {
             _mcpHandler.MakeGame(difficulty, gameName, gamePass);
+        }
+
+        public void MakeGameFromSettings(Client.GameDifficulty difficulty, string gameName, string gamePass) {
+            _mcpHandler.MakeGameFromSettings(difficulty, gameName, gamePass);
         }
 
         public void MakeRandomGame(Client.GameDifficulty difficulty)

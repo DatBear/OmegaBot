@@ -9,27 +9,28 @@ namespace BattleNet
 {
     class Container
     {
-        protected String _name;
-        protected Int32 _width, _height;
+        protected String Name;
+        protected Int32 Width, Height;
+        public ContainerType Type { get; set; }
 
-        public List<Item> _items;
-        public List<BitArray> _fields;
-
-
-        public Container(String name, Int32 width, Int32 height)
+        public List<Item> Items;
+        public List<BitArray> Fields;
+        
+        public Container(string name, ContainerType type, Int32 width, Int32 height)
         {
-            _items = new List<Item>();
-            _name = name;
-            _width = width;
-            _height = height;
+            Items = new List<Item>();
+            Name = name;
+            Type = type;
+            Width = width;
+            Height = height;
 
-            BitArray fieldLine = new BitArray(_width, false);
+            BitArray fieldLine = new BitArray(Width, false);
 
-            _fields = new List<BitArray>(_height);
+            Fields = new List<BitArray>(Height);
 
-            for (int i = 0; i < _height; i++)
+            for (int i = 0; i < Height; i++)
             {
-                _fields.Add(new BitArray(fieldLine));
+                Fields.Add(new BitArray(fieldLine));
             }
 
 
@@ -41,7 +42,7 @@ namespace BattleNet
             {
                 for (int y = 0; y < item.Height; y++)
                     for (int x = 0; x < item.Width; x++)
-                        _fields[(int)item.Y + y][(int)item.X + x] = value;
+                        Fields[(int)item.Y + y][(int)item.X + x] = value;
             }
             catch
             {
@@ -51,14 +52,14 @@ namespace BattleNet
 
         protected Boolean RectangleIsFree(int rectangleX, int rectangleY, int rectangleWidth, int rectangleHeight)
         {
-            if ((rectangleX + rectangleWidth > _width) || (rectangleY + rectangleHeight > _height))
+            if ((rectangleX + rectangleWidth > Width) || (rectangleY + rectangleHeight > Height))
                 return false;
 
             for (int y = rectangleY; y < rectangleY + rectangleHeight; y++)
             {
                 for (int x = rectangleX; x < rectangleX + rectangleWidth; x++)
                 {
-                    if (_fields[y][x])
+                    if (Fields[y][x])
                         return false;
                 }
             }
@@ -67,23 +68,23 @@ namespace BattleNet
 
         public void Add(Item item)
         {
-            _items.Add(item);
+            Items.Add(item);
             SetItemFields(item, true);
         }
 
         public void Remove(Item item)
         {
             SetItemFields(item, false);
-            _items.Remove(item);
+            Items.Remove(item);
         }
 
         public UInt32 NumberFields()
         {
             UInt32 i = 0;
-            for (Int32 y = 0; y < _height; y++)
+            for (Int32 y = 0; y < Height; y++)
             {
-                for (Int32 x = 0; x < _width; x++)
-                    if (_fields[y][x])
+                for (Int32 x = 0; x < Width; x++)
+                    if (Fields[y][x])
                         i++;
             }
 
@@ -94,9 +95,9 @@ namespace BattleNet
         {
             UInt16 itemWidth = item.Width;
             UInt16 itemHeight = item.Height;
-            for (UInt16 y = 0; y < _height; y++)
+            for (UInt16 y = 0; y < Height; y++)
             {
-                for (UInt16 x = 0; x < _width; x++)
+                for (UInt16 x = 0; x < Width; x++)
                 {
                     if (RectangleIsFree(x, y, item.Width, item.Height))
                     {

@@ -25,6 +25,8 @@ namespace BattleNet
 {
     class Utils
     {
+        static readonly Random Random = new Random();
+
         public static UInt16 ReverseBytes(UInt16 value)
         {
             return (UInt16)((value & 0xFFU) << 8 | (value & 0xFF00U) >> 8);
@@ -65,11 +67,11 @@ namespace BattleNet
         public static string RandomString(int size)
         {
             StringBuilder builder = new StringBuilder();
-            Random random = new Random();
+            
             char ch;
             for (int i = 0; i < size; i++)
             {
-                ch = Convert.ToChar(Convert.ToInt32(Math.Floor(26 * random.NextDouble() + 97 )));
+                ch = Convert.ToChar(Convert.ToInt32(Math.Floor(26 * Random.NextDouble() + 97 )));
                 if (i == 0)
                     builder.Append(Char.ToUpper(ch));
                 else

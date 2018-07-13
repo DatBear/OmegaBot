@@ -70,7 +70,8 @@ namespace BattleNet
         public enum NextGameType
         {
             ItemTransfer,
-            RunBot
+            RunBot,
+            FollowLeader
         };
 
         public enum GameDifficulty
@@ -120,7 +121,8 @@ namespace BattleNet
                     switch (_nextGame)
                     {
                         case NextGameType.RunBot:
-                            _bnet.MakeRandomGame(_difficulty);
+                            _bnet.MakeGameFromSettings(_difficulty, Settings.Instance.GameName(), Settings.Instance.GamePassword());
+                            //_bnet.MakeRandomGame(_difficulty);
                             break;
                         case NextGameType.ItemTransfer:
                             //_bnet.JoinGame();

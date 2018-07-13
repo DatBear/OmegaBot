@@ -16,6 +16,7 @@ namespace BattleNet.Connections.Handlers
         String _realm;
 
         Client.GameDifficulty _difficulty;
+        private static int _nextGameIndex = 1;
 
         String _gameName;
         String _gamePass;
@@ -262,9 +263,18 @@ namespace BattleNet.Connections.Handlers
             _gameName = gameName;
             _gamePass = gamePass;
             byte[] temp = { 0x01, 0xff, 0x08 };
-            byte[] packet = Connection.BuildPacket(0x03, BitConverter.GetBytes((UInt16)2), BitConverter.GetBytes(Utils.GetDifficulty(difficulty)), temp, System.Text.Encoding.ASCII.GetBytes(_gameName), GenericHandler.Zero,
-                            System.Text.Encoding.ASCII.GetBytes(_gamePass), GenericHandler.Zero, GenericHandler.Zero);
+            byte[] packet = Connection.BuildPacket(0x03, BitConverter.GetBytes((ushort)(2*_nextGameIndex)), BitConverter.GetBytes(Utils.GetDifficulty(difficulty)), temp, Encoding.ASCII.GetBytes(_gameName), Zero,
+                            Encoding.ASCII.GetBytes(_gamePass), Zero, Zero);
             Connection.Write(packet);
+        }
+
+        public void MakeGameFromSettings(Client.GameDifficulty difficulty, string gameName, string gamePass) {
+            var name = gameName.Replace("%i", _nextGameIndex.ToString());
+            var pass = gamePass.Replace("%i", _nextGameIndex.ToString());
+            Logger.Write($"Create Game {name} with Password {pass}");
+            MakeGame(difficulty, name, pass);
+
+            _nextGameIndex++;
         }
 
         public void MakeRandomGame(Client.GameDifficulty difficulty)

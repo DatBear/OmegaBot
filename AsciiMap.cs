@@ -52,7 +52,7 @@ namespace BattleNet
             while (_connection.Socket.Connected)
             {
                 PopulateMap();
-                DrawScreen();
+                //DrawScreen();
                 Thread.Sleep(50);
             }
             Logger.LogToConsole = true;
@@ -68,8 +68,8 @@ namespace BattleNet
                 }
             }
 
-            _x = (_gameData.Me.Location.X);
-            _y = (_gameData.Me.Location.Y);
+            _x = _gameData.Me.Location.X;
+            _y = _gameData.Me.Location.Y;
 
 
             foreach (NpcEntity npc in _gameData.Npcs.Values)

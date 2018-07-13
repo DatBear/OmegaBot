@@ -97,10 +97,10 @@ namespace BattleNet {
             Items.Clear();
             WorldObjects.Clear();
 
-            Inventory = new Container("Inventory", InventoryWidth, InventoryHeight);
-            Stash = new Container("Stash", StashWidth, StashHeight);
-            Cube = new Container("Cube", CubeWidth, CubeHeight);//todo make configurable
-            Belt = new Container("Belt", 4, 4);//todo depend on belt type...
+            Inventory = new Container("Inventory", ContainerType.Inventory, InventoryWidth, InventoryHeight);
+            Stash = new Container("Stash", ContainerType.Stash, StashWidth, StashHeight);
+            Cube = new Container("Cube", ContainerType.Cube, CubeWidth, CubeHeight);//todo make configurable
+            Belt = new Container("Belt", ContainerType.Belt, 4, 4);//todo make size depend on belt type...
 
             MalahId = 0;
             CurrentLife = 0;

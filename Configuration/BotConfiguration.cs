@@ -21,6 +21,8 @@
     public class GameOptions {
         public ChickenOptions ChickenOptions { get; set; }
         public BossOptions BossOptions { get; set; }
+        public string Name;
+        public string Password;
         public string Difficulty { get; set; }
         public int StartDelay { get; set; }
         public int MinRuntime { get; set; }

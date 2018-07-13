@@ -129,6 +129,14 @@ namespace BattleNet {
             return _data.GameOptions.ChickenOptions.Potion;
         }
 
+        public string GameName() {
+            return _data.GameOptions.Name;
+        }
+
+        public string GamePassword() {
+            return _data.GameOptions.Password;
+        }
+
         public int GameMinRuntime() {
             return _data.GameOptions.MinRuntime;
         }

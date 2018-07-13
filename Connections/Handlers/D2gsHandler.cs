@@ -30,6 +30,9 @@ namespace BattleNet.Connections.Handlers
                     {
                         packet = Connection.Packets.Dequeue();
                     }
+                    if (!packet.Any()) {
+                        continue;
+                    }
                     byte type = packet[0];
                     DispatchPacket(type)(type, packet);
                 }
@@ -90,7 +93,7 @@ namespace BattleNet.Connections.Handlers
             Logger.Write("Game flags ping");
             List<byte> packet = new List<byte>();
             packet.Add(0x6d);
-            packet.AddRange(BitConverter.GetBytes((uint)System.Environment.TickCount));
+            packet.AddRange(BitConverter.GetBytes((uint)Environment.TickCount));
             packet.AddRange(Nulls);
             packet.AddRange(Nulls);
             /*
@@ -260,14 +263,13 @@ namespace BattleNet.Connections.Handlers
 
         public delegate void NewPlayer(Player newPlayer);
         public event NewPlayer PlayerEnters = delegate { };
-        Player me;
+        Player _me;
         protected void PlayerJoins(byte type, List<byte> data)
         {
             byte[] packet = data.ToArray();
             UInt32 id = BitConverter.ToUInt32(packet, 3);
-            if (id != me.Id)
-            {
-                String name = BitConverter.ToString(packet, 8, 15);
+            if (id != _me.Id) {
+                String name = Encoding.UTF8.GetString(packet.Skip(8).Take(15).Where(x => x != 0).ToArray());// BitConverter.ToString(packet, 8, 15);
                 Globals.CharacterClassType charClass = (Globals.CharacterClassType)data[7];
                 UInt32 level = BitConverter.ToUInt16(packet, 24);
                 Player newPlayer = new Player(name, id, charClass, level);
@@ -277,8 +279,9 @@ namespace BattleNet.Connections.Handlers
         }
 
         public event NewPlayer InitMe = delegate { };
-        protected void InitializePlayer(byte type, List<byte> data)
-        {
+        protected void InitializePlayer(byte type, List<byte> data) {
+            Logger.Write($"INITIALIZE PLAYER TYPE:{type}");
+            if (_me != null) return;//already initialized.
             byte[] packet = data.ToArray();
             UInt32 id = BitConverter.ToUInt32(packet, 1);
             Globals.CharacterClassType charClass = (Globals.CharacterClassType)data[5];
@@ -286,8 +289,9 @@ namespace BattleNet.Connections.Handlers
             UInt16 x = BitConverter.ToUInt16(packet, 22);
             UInt16 y = BitConverter.ToUInt16(packet, 24);
             Player newPlayer = new Player(name, id, charClass, _level, x, y);
-            me = newPlayer;
-            InitMe(me);
+            Logger.Write($"INITIALIZE PLAYER ID:{id}");
+            _me = newPlayer;
+            InitMe(_me);
         }
 
         public delegate void NpcUpdateDel(UInt32 id, Coordinate coord, bool moving, bool running);

@@ -76,10 +76,18 @@ namespace BattleNet
             return BuildPacket(0x3c, BitConverter.GetBytes(skill), temp);
         }
 
-        private static byte[] DrinkPotion(UInt32 id)
+        public static byte[] DrinkPotion(UInt32 id)
         {
             return BuildPacket(0x26, BitConverter.GetBytes(id), Connections.GenericHandler.Nulls,
                                 Connections.GenericHandler.Nulls);
+        }
+
+        public static byte[] ItemToCursor(uint itemId) {
+            return BuildPacket(0x19, BitConverter.GetBytes(itemId));
+        }
+
+        public static byte[] ItemToContainer(uint itemId, Coordinate location, ContainerType container) {
+            return BuildPacket(0x18, BitConverter.GetBytes(itemId), location.ToBytes(), BitConverter.GetBytes((int) container));
         }
 
     }
