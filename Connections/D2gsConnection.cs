@@ -7,7 +7,7 @@ using BattleNet.Logging;
 
 namespace BattleNet.Connections
 {
-    class D2gsConnection : Connection
+    public class D2gsConnection : Connection
     {
         
         protected void StartGameServer(IPAddress ip, List<byte> hash, List<byte> token)
@@ -17,14 +17,14 @@ namespace BattleNet.Connections
 
         public override bool Init(IPAddress server, ushort port, List<byte> data)
         {
-            _socket.Close();
-            _packets.Clear();
+            Socket.Close();
+            Packets.Clear();
             try
             {
                 Logger.Write("Connecting to {0}:{1}", server, port);
-                _socket = new System.Net.Sockets.TcpClient();
-                _socket.Connect(server, port);
-                _stream = _socket.GetStream();
+                Socket = new System.Net.Sockets.TcpClient();
+                Socket.Connect(server, port);
+                Stream = Socket.GetStream();
                 Logger.Write(" Connected");
             }
             catch

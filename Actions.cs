@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BattleNet.Enums;
 
 namespace BattleNet
 {
@@ -17,6 +18,10 @@ namespace BattleNet
             packet.AddRange(packetArray);
 
             return packet.ToArray();
+        }
+
+        private static byte[] Byte(object soloByte) {
+            return new[] { (byte) soloByte };
         }
 
         public static byte[] Walk(Coordinate coords)
@@ -90,5 +95,9 @@ namespace BattleNet
             return BuildPacket(0x18, BitConverter.GetBytes(itemId), location.ToBytes(), BitConverter.GetBytes((int) container));
         }
 
+        public static byte[] PartyAction(int playerId, PartyAction action) {
+            return BuildPacket(0x5E, Byte(action), BitConverter.GetBytes(playerId));
+        }
+        
     }
 }

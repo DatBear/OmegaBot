@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BattleNet.Connections
 {
-    class GenericDispatcher : GenericHandler
+    public class GenericDispatcher : GenericHandler
     {
         public GenericDispatcher(Connection conn)
             : base(conn)

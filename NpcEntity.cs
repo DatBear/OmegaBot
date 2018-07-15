@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BattleNet
 {
-    class NpcEntity : Entity
+    public class NpcEntity : Entity
     {
         public string Name { get; set; }
         public uint Type { get; set; }

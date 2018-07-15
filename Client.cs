@@ -8,7 +8,7 @@ using BattleNet.Logging;
 
 namespace BattleNet
 {
-    class Client : IDisposable
+    public class Client : IDisposable
     {
 #region Members
 

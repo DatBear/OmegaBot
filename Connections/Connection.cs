@@ -8,20 +8,20 @@ using System.Net;
 
 namespace BattleNet.Connections
 {
-    class Connection : IDisposable
+    public class Connection : IDisposable
     {
         #region Constructors 
         public Connection()
         {
-            _socket = new TcpClient();
+            Socket = new TcpClient();
 
-            _packets = new PriorityQueue<uint, List<byte>>();
-            _packetsReady = new AutoResetEvent(false);
+            Packets = new PriorityQueue<uint, List<byte>>();
+            PacketsReady = new AutoResetEvent(false);
         }
         #endregion
 
-        protected AutoResetEvent _packetsReady;
-        public AutoResetEvent PacketsReady { get { return _packetsReady; } set { _packetsReady = value; } }
+        public AutoResetEvent PacketsReady { get; set; }
+
         #region Events
 
         public delegate void ThreadStarter();
@@ -35,14 +35,10 @@ namespace BattleNet.Connections
         #endregion
 
         #region Members
-        protected NetworkStream _stream;
-        public NetworkStream Stream { get { return _stream; } set { _stream = value; } }
 
-        protected TcpClient _socket;
-        public TcpClient Socket { get { return _socket; } set { _socket = value; } }
-
-        protected PriorityQueue<UInt32,List<byte>> _packets;
-        public PriorityQueue<UInt32, List<byte>> Packets { get { return _packets; } set { _packets = value; } }
+        public NetworkStream Stream { get; set; }
+        public TcpClient Socket { get; set; }
+        public PriorityQueue<UInt32, List<byte>> Packets { get; set; }
 
         #endregion
 
@@ -54,8 +50,8 @@ namespace BattleNet.Connections
 
         public virtual void Kill()
         {
-            _stream.Close();
-            _socket.Close();
+            Stream.Close();
+            Socket.Close();
         }
 
         public void Close()
@@ -70,11 +66,11 @@ namespace BattleNet.Connections
 
         public virtual void Write(byte[] packet)
         {
-            if (_socket.Connected)
+            if (Socket.Connected)
             {
                 try
                 {
-                    _stream.Write(packet, 0, packet.Length);
+                    Stream.Write(packet, 0, packet.Length);
                 }
                 catch
                 {
@@ -93,9 +89,9 @@ namespace BattleNet.Connections
 
         void IDisposable.Dispose()
         {
-            _stream.Close();
-            _socket.Close();
-            _packetsReady.Close();
+            Stream.Close();
+            Socket.Close();
+            PacketsReady.Close();
         }
 
         #endregion

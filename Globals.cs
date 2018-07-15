@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BattleNet
 {
-    class Globals
+    public class Globals
     {
         public static String BinaryDirectory { get; set; } = "data";
         public static ushort GsPort => 4000;

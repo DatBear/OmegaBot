@@ -137,6 +137,14 @@ namespace BattleNet {
             return _data.GameOptions.Password;
         }
 
+        public string FollowAccountName() {
+            return _data.GameOptions.FollowAccountName;
+        }
+
+        public string FollowPlayerName() {
+            return _data.GameOptions.FollowPlayerName;
+        }
+
         public int GameMinRuntime() {
             return _data.GameOptions.MinRuntime;
         }

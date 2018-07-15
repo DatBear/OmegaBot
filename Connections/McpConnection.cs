@@ -12,15 +12,15 @@ namespace BattleNet.Connections
         public override bool Init(IPAddress server, ushort port, List<byte> data)
         {
             Logger.Write("[MCP] Connecting to {0}:{1}", server, port);
-            _socket.Connect(server, port);
-            _stream = _socket.GetStream();
-            if (!_stream.CanWrite)
+            Socket.Connect(server, port);
+            Stream = Socket.GetStream();
+            if (!Stream.CanWrite)
             {
                 Logger.Write("Failed To connect to {0}:{1}", server, port);
                 return false;
             }
             
-            _stream.WriteByte(0x01);
+            Stream.WriteByte(0x01);
             byte[] packet = BuildPacket(0x01, data);
             Write(packet);
 
@@ -34,7 +34,7 @@ namespace BattleNet.Connections
             {
                 try
                 {
-                    byte temp = (byte)_stream.ReadByte();
+                    byte temp = (byte)Stream.ReadByte();
                     mcpBuffer.Add(temp);
                 }
                 catch
@@ -54,7 +54,7 @@ namespace BattleNet.Connections
             {
                 try
                 {
-                    byte temp = (byte)_stream.ReadByte();
+                    byte temp = (byte)Stream.ReadByte();
                     mcpBuffer.Add(temp);
                 }
                 catch

@@ -139,7 +139,7 @@ namespace BattleNet.Items
             ItemEntry entry;
             if (!DataManager.Instance._itemData.Get(item.type, out entry))
             {
-                Console.WriteLine("Failed to look up item in item data table");
+                //Console.WriteLine("Failed to look up item in item data table");
                 return true;
             }
 

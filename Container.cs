@@ -7,7 +7,7 @@ using System.Collections;
 
 namespace BattleNet
 {
-    class Container
+    public class Container
     {
         protected String Name;
         protected Int32 Width, Height;
@@ -46,7 +46,7 @@ namespace BattleNet
             }
             catch
             {
-                Logger.Write("Coordinate Exception....");
+                Logger.Write($"Coordinate Exception, Container:{Name}, {Type}");
             }
         }
 

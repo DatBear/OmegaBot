@@ -2,32 +2,25 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BattleNet.Enums;
 using BattleNet.Logging;
 
-namespace BattleNet.Connections.Handlers
-{
-    class D2gsHandler : GenericDispatcher
-    {
+namespace BattleNet.Connections.Handlers {
+    public class D2gsHandler : GenericDispatcher {
         public D2gsHandler(ref D2gsConnection conn)
-            : base(conn)
-        {
+            : base(conn) {
         }
 
-        public override void ThreadFunction()
-        {
-            firstInfoPacket = true;
+        public override void ThreadFunction() {
+            _firstInfoPacket = true;
             Logger.Write("D2GS handler started!");
-            while (Connection.Socket.Connected)
-            {
-                if (Connection.Packets.IsEmpty())
-                {
+            while (Connection.Socket.Connected) {
+                if (Connection.Packets.IsEmpty()) {
                     //_connection.PacketsReady.WaitOne();
                 }
-                else
-                {
+                else {
                     List<byte> packet;
-                    lock (Connection.Packets)
-                    {
+                    lock (Connection.Packets) {
                         packet = Connection.Packets.Dequeue();
                     }
                     if (!packet.Any()) {
@@ -43,10 +36,8 @@ namespace BattleNet.Connections.Handlers
         public delegate void PingStarter();
         public event PingStarter StartPinging = delegate { };
 
-        public override PacketHandler DispatchPacket(byte type)
-        {
-            switch (type)
-            {
+        public override PacketHandler DispatchPacket(byte type) {
+            switch (type) {
                 case 0x00: return GameLoading;
                 case 0x01: return GameFlagsPing;
                 case 0x02: return StartPingThread;
@@ -62,16 +53,18 @@ namespace BattleNet.Connections.Handlers
                 case 0x22: return ItemSkillBonus;
                 case 0x26: return ChatMessage;
                 case 0x27: return NpcInteraction;
+                case 0x59: return InitializePlayer;
                 case 0x51: return WorldObject;
                 case 0x5b: return PlayerJoins;
                 case 0x5c: return PlayerLeaves;
-                case 0x59: return InitializePlayer;
                 case 0x67: return NpcMovement;
                 case 0x68: return NpcMoveEntity;
                 case 0x69: return NpcStateUpdate;
                 case 0x6d: return NpcStoppedMoving;
-                case 0x81: return MercUpdate;
+                case 0x7A: return PetOrMercUpdate;
+                case 0x81: return PetOrMercAdd;
                 case 0x82: return PortalUpdate;
+                case 0x8B: return PartyUpdate;
                 case 0x8f: return Pong;
                 case 0x94: return SkillPacket;
                 case 0x95: return LifeManaPacket;
@@ -82,14 +75,12 @@ namespace BattleNet.Connections.Handlers
                 default: return VoidRequest;
             }
         }
-        
-        protected void GameLoading(byte type, List<byte> data)
-        {
+
+        protected void GameLoading(byte type, List<byte> data) {
             Logger.Write("Game is loading, please wait...");
         }
 
-        protected void GameFlagsPing(byte type, List<byte> data)
-        {
+        protected void GameFlagsPing(byte type, List<byte> data) {
             Logger.Write("Game flags ping");
             List<byte> packet = new List<byte>();
             packet.Add(0x6d);
@@ -102,42 +93,82 @@ namespace BattleNet.Connections.Handlers
              */
             Connection.Write(packet.ToArray());
         }
+
+
+        public delegate void ItemUpdate(Item item);
+        public event ItemUpdate NewItem;
+        public delegate void AddNpcDelegate(NpcEntity npc);
+        public event AddNpcDelegate AddNpcEvent;
+        public event SkillUpdate UpdateSkillLevel;
+        public event NoParams SwapWeaponSet;
+        public delegate void LifeUpdate(UInt32 plife);
+        public event LifeUpdate UpdateLife;
+        public delegate void NoParams();
+        public event NoParams UpdateTimestamp;
+        public delegate void PortalAssign(UInt32 ownerId, UInt32 portalId);
+        public event PortalAssign PortalUpdateEvent;
+        public delegate void PartyUpdateDelegate(int owner, PartyAction action);
+        public event PartyUpdateDelegate PartyUpdateEvent;
+        public delegate void MercenaryUpdate(UInt32 id, UInt32 mercId);
+        public event MercenaryUpdate PetOrMercUpdateEvent;
+        public delegate void NpcStateUpdateDel(UInt32 id, Coordinate coord, byte life);
+        public event NpcStateUpdateDel UpdateNpcState = delegate { };
+        public event NpcUpdateDel NpcMoveToTarget;
+        public delegate void NpcUpdateDel(UInt32 id, Coordinate coord, bool moving, bool running);
+        public event NpcUpdateDel UpdateNpcMovement;
+        public event NewPlayer InitMe;
+        public delegate void NewPlayer(Player newPlayer);
+        public event NewPlayer PlayerEnters;
+        public delegate void PlayerLeft(UInt32 id);
+        public event PlayerLeft PlayerExited;
+        public event NoParams NpcTalkedEvent;
+        public delegate void SkillUpdate(Skills.Type skill, byte level);
+        public event SkillUpdate UpdateItemSkill;
+        public delegate void PlayerLevelSet(byte level);
+        public event PlayerLevelSet SetPlayerLevel;
+        public delegate void ExperienceUpdate(UInt32 exp);
+        public event ExperienceUpdate UpdateExperience;
+        public delegate void PlayerPositionUpdate(UInt32 id, Coordinate coords, bool directoryKnown);
+        public event PlayerPositionUpdate UpdatePlayerPosition;
+        public delegate void NpcLifeUpdate(UInt32 id, byte life);
+        public event NpcLifeUpdate UpdateNpcLife;
+        public delegate void ActData(Globals.ActType act, Int32 mapId, Int32 areaId);
+        public event ActData UpdateActData;
         public delegate void NewEntity(UInt16 type, WorldObject ent);
         public event NewEntity UpdateWorldObject;
-        protected void WorldObject(byte type, List<byte> data)
-        {
+
+        byte _level;
+        private bool _firstInfoPacket;
+        private bool _talkedToNpc;
+        Player _me;
+
+        protected void WorldObject(byte type, List<byte> data) {
             byte[] packet = data.ToArray();
-            if (packet[1] == 0x02)
-            {
+            if (packet[1] == 0x02) {
                 UInt16 obj = BitConverter.ToUInt16(packet, 6);
-                UpdateWorldObject(obj, new WorldObject(BitConverter.ToUInt32(packet, 2),
+                UpdateWorldObject?.Invoke(obj, new WorldObject(BitConverter.ToUInt32(packet, 2),
                                                     obj,
                                                     BitConverter.ToUInt16(packet, 8),
                                                     BitConverter.ToUInt16(packet, 10)));
             }
         }
 
-        protected void StartPingThread(byte type, List<byte> data)
-        {
+        protected void StartPingThread(byte type, List<byte> data) {
             Logger.Write("Starting Ping thread");
             Connection.Stream.WriteByte(0x6b);
             StartPinging();
         }
 
-        public delegate void ActData(Globals.ActType act, Int32 mapId, Int32 areaId);
-        public event ActData UpdateActData = delegate { };
-
-        protected void LoadActData(byte type, List<byte> data)
-        {
+        protected void LoadActData(byte type, List<byte> data) {
             byte[] packet = data.ToArray();
-            
+
             Logger.Write("Loading Act Data");
 
             Globals.ActType currentAct = (Globals.ActType)data[1];
             Int32 mapId = BitConverter.ToInt32(packet, 2);
             Int32 areaId = BitConverter.ToInt32(packet, 6);
 
-            UpdateActData(currentAct, mapId, areaId);
+            UpdateActData?.Invoke(currentAct, mapId, areaId);
             /*
             if (!_fullEntered)
             {
@@ -147,26 +178,20 @@ namespace BattleNet.Connections.Handlers
             */
         }
 
-        public delegate void NpcLifeUpdate(UInt32 id, byte life);
-        public event NpcLifeUpdate UpdateNpcLife = delegate { };
 
-        protected void NpcUpdate(byte type, List<byte> data)
-        {
+        protected void NpcUpdate(byte type, List<byte> data) {
             UInt32 id = BitConverter.ToUInt32(data.ToArray(), 2);
-            UpdateNpcLife(id, data[8]);
+            UpdateNpcLife?.Invoke(id, data[8]);
             //_owner.BotGameData.Npcs[id].Life = data[8];
         }
 
-        public delegate void PlayerPositionUpdate(UInt32 id, Coordinate coords, bool directoryKnown);
-        public event PlayerPositionUpdate UpdatePlayerPosition = delegate { };
 
-        protected void PlayerMove(byte type, List<byte> data)
-        {
+        protected void PlayerMove(byte type, List<byte> data) {
             Logger.Write("A player is moving");
             byte[] packet = data.ToArray();
             UInt32 playerId = BitConverter.ToUInt32(packet, 2);
             Coordinate coords = new Coordinate(BitConverter.ToUInt16(packet, 7), BitConverter.ToUInt16(packet, 9));
-            UpdatePlayerPosition(playerId, coords, true);
+            UpdatePlayerPosition?.Invoke(playerId, coords, true);
             /*
             Player current_player = _owner.BotGameData.GetPlayer(playerId);
             current_player.Location = new Coordinate(BitConverter.ToUInt16(packet, 7), BitConverter.ToUInt16(packet, 9));
@@ -174,22 +199,18 @@ namespace BattleNet.Connections.Handlers
              */
         }
 
-        protected void PlayerReassign(byte type, List<byte> data)
-        {
+        protected void PlayerReassign(byte type, List<byte> data) {
             byte[] packet = data.ToArray();
             UInt32 id = BitConverter.ToUInt32(packet, 2);
             Coordinate coords = new Coordinate(BitConverter.ToUInt16(packet, 6), BitConverter.ToUInt16(packet, 8));
-            UpdatePlayerPosition(id, coords, true);
+            UpdatePlayerPosition?.Invoke(id, coords, true);
             /*
             Player current_player = _owner.BotGameData.GetPlayer(id);
             current_player.Location = new Coordinate(BitConverter.ToUInt16(packet, 6), BitConverter.ToUInt16(packet, 8));
              */
         }
 
-        public delegate void ExperienceUpdate(UInt32 exp);
-        public event ExperienceUpdate UpdateExperience = delegate { };
-        protected void ProcessExperience(byte type, List<byte> data)
-        {
+        protected void ProcessExperience(byte type, List<byte> data) {
             byte[] packet = data.ToArray();
             UInt32 exp = 0;
             if (type == 0x1a)
@@ -199,26 +220,19 @@ namespace BattleNet.Connections.Handlers
             else if (type == 0x1c)
                 exp = BitConverter.ToUInt32(packet, 1);
 
-            UpdateExperience(exp);
+            UpdateExperience?.Invoke(exp);
         }
 
-        public delegate void PlayerLevelSet(byte level);
-        public event PlayerLevelSet SetPlayerLevel = delegate { };
-        byte _level;
-        protected void BaseAttribute(byte type, List<byte> data)
-        {
-            if (data[1] == 0x0c)
-            {
-                SetPlayerLevel(data[2]);
+
+        protected void BaseAttribute(byte type, List<byte> data) {
+            if (data[1] == 0x0c) {
+                SetPlayerLevel?.Invoke(data[2]);
                 _level = data[2];
                 //Console.WriteLine("Setting Player Level: {0}", data[2]);
             }
         }
 
-        public delegate void SkillUpdate(Skills.Type skill, byte level);
-        public event SkillUpdate UpdateItemSkill = delegate { };
-        protected void ItemSkillBonus(byte type, List<byte> data)
-        {
+        protected void ItemSkillBonus(byte type, List<byte> data) {
             UInt32 skill, amount;
             skill = BitConverter.ToUInt16(data.ToArray(), 7);
             if (type == 0x21)
@@ -227,45 +241,44 @@ namespace BattleNet.Connections.Handlers
                 amount = data[9];
 
             //Console.WriteLine("Setting Skill: {0} bonus to {1}", skill, amount);
-            UpdateItemSkill((Skills.Type)skill, (byte)amount);
+            UpdateItemSkill?.Invoke((Skills.Type)skill, (byte)amount);
         }
 
-        protected void ChatMessage(byte type, List<byte> data)
-        {
+        protected void ChatMessage(byte type, List<byte> data) {
         }
 
-        private bool firstInfoPacket;
-        private bool talkedToNpc;
 
-        public event NoParams NpcTalkedEvent = delegate { };
-        protected void NpcInteraction(byte type, List<byte> data)
-        {
-            if (firstInfoPacket)
-                firstInfoPacket = false;
-            else
-            {
+        protected void NpcInteraction(byte type, List<byte> data) {
+            if (_firstInfoPacket)
+                _firstInfoPacket = false;
+            else {
                 Logger.Write("{0}: [D2GS] Talking to an NPC.");
-                talkedToNpc = true;
+                _talkedToNpc = true;
                 UInt32 id = BitConverter.ToUInt32(data.ToArray(), 2);
                 Connection.Write(Connection.BuildPacket(0x2f, One, BitConverter.GetBytes(id)));
-                NpcTalkedEvent();
+                NpcTalkedEvent?.Invoke();
             }
         }
 
-        public delegate void PlayerLeft(UInt32 id);
-        public event PlayerLeft PlayerExited = delegate { };
-        protected void PlayerLeaves(byte type, List<byte> data)
-        {
+        protected void PlayerLeaves(byte type, List<byte> data) {
             UInt32 id = BitConverter.ToUInt32(data.ToArray(), 1);
-            PlayerExited(id);
+            PlayerExited?.Invoke(id);
             //_owner.BotGameData.Players.Remove(id);
         }
 
-        public delegate void NewPlayer(Player newPlayer);
-        public event NewPlayer PlayerEnters = delegate { };
-        Player _me;
-        protected void PlayerJoins(byte type, List<byte> data)
-        {
+        protected void PartyUpdate(byte type, List<byte> data) {
+            byte[] packet = data.ToArray();
+
+            //Logger.Write($"{nameof(PartyUpdate)}: [{type:X}] [{BitConverter.ToString(packet)}]");
+            //Cancel: [8B-02-00-00-00-00]
+            //Request: [8B-02-00-00-00-02]
+            int playerId = BitConverter.ToInt32(packet, 1);
+            PartyAction action = (PartyAction) packet.Skip(5).First();
+            //Logger.Write($"{nameof(PartyUpdate)}: pid:{playerId}, action: {action}");
+            PartyUpdateEvent?.Invoke(playerId, action);
+        }
+
+        protected void PlayerJoins(byte type, List<byte> data) {
             byte[] packet = data.ToArray();
             UInt32 id = BitConverter.ToUInt32(packet, 3);
             if (id != _me.Id) {
@@ -273,12 +286,11 @@ namespace BattleNet.Connections.Handlers
                 Globals.CharacterClassType charClass = (Globals.CharacterClassType)data[7];
                 UInt32 level = BitConverter.ToUInt16(packet, 24);
                 Player newPlayer = new Player(name, id, charClass, level);
-                PlayerEnters(newPlayer);
+                PlayerEnters?.Invoke(newPlayer);
                 //_owner.BotGameData.Players.Add(id, newPlayer);
             }
         }
 
-        public event NewPlayer InitMe = delegate { };
         protected void InitializePlayer(byte type, List<byte> data) {
             Logger.Write($"INITIALIZE PLAYER TYPE:{type}");
             if (_me != null) return;//already initialized.
@@ -291,13 +303,10 @@ namespace BattleNet.Connections.Handlers
             Player newPlayer = new Player(name, id, charClass, _level, x, y);
             Logger.Write($"INITIALIZE PLAYER ID:{id}");
             _me = newPlayer;
-            InitMe(_me);
+            InitMe?.Invoke(_me);
         }
 
-        public delegate void NpcUpdateDel(UInt32 id, Coordinate coord, bool moving, bool running);
-        public event NpcUpdateDel UpdateNpcMovement = delegate { };
-        protected void NpcMovement(byte type, List<byte> data)
-        {
+        protected void NpcMovement(byte type, List<byte> data) {
             byte[] packet = data.ToArray();
             UInt32 id = BitConverter.ToUInt32(packet, 1);
             byte movementType = packet[5];
@@ -311,12 +320,10 @@ namespace BattleNet.Connections.Handlers
             else
                 return;
 
-            UpdateNpcMovement(id, new Coordinate(x, y), true, running);           
+            UpdateNpcMovement?.Invoke(id, new Coordinate(x, y), true, running);
         }
 
-        public event NpcUpdateDel NpcMoveToTarget = delegate { };
-        protected void NpcMoveEntity(byte type, List<byte> data)
-        {
+        protected void NpcMoveEntity(byte type, List<byte> data) {
             byte[] packet = data.ToArray();
             UInt32 id = BitConverter.ToUInt32(packet, 1);
             byte movementType = packet[5];
@@ -330,13 +337,10 @@ namespace BattleNet.Connections.Handlers
             else
                 return;
 
-            NpcMoveToTarget(id, new Coordinate(x, y), true, running);          
+            NpcMoveToTarget?.Invoke(id, new Coordinate(x, y), true, running);
         }
 
-        public delegate void NpcStateUpdateDel(UInt32 id, Coordinate coord, byte life);
-        public event NpcStateUpdateDel UpdateNpcState = delegate { };
-        protected void NpcStateUpdate(byte type, List<byte> data)
-        {
+        protected void NpcStateUpdate(byte type, List<byte> data) {
             byte[] packet = data.ToArray();
             UInt32 id = BitConverter.ToUInt32(packet, 1);
             byte state = packet[5];
@@ -347,42 +351,41 @@ namespace BattleNet.Connections.Handlers
             else
                 life = packet[10];
 
-            UpdateNpcState(id, new Coordinate(BitConverter.ToUInt16(packet, 6),
+            UpdateNpcState?.Invoke(id, new Coordinate(BitConverter.ToUInt16(packet, 6),
                                BitConverter.ToUInt16(packet, 8)), life);
         }
 
-        protected void NpcStoppedMoving(byte type, List<byte> data)
-        {
+        protected void NpcStoppedMoving(byte type, List<byte> data) {
             byte[] packet = data.ToArray();
             UInt32 id = BitConverter.ToUInt32(packet, 1);
             UInt16 x = BitConverter.ToUInt16(packet, 5);
             UInt16 y = BitConverter.ToUInt16(packet, 7);
             byte life = packet[9];
 
-            UpdateNpcMovement(id, new Coordinate(x, y), false, false);
-            UpdateNpcLife(id, life);
+            UpdateNpcMovement?.Invoke(id, new Coordinate(x, y), false, false);
+            UpdateNpcLife?.Invoke(id, life);
         }
 
-        public delegate void MercenaryUpdate(UInt32 id, UInt32 mercId);
-        public event MercenaryUpdate MercUpdateEvent = delegate { };
-        protected void MercUpdate(byte type, List<byte> data)
-        {
+        protected void PetOrMercAdd(byte type, List<byte> data) {
             byte[] packet = data.ToArray();
+            Logger.Write($"{nameof(PetOrMercAdd)}: [{type:X}] [{BitConverter.ToString(packet)}]");
             UInt32 id = BitConverter.ToUInt32(packet, 4);
             UInt32 mercId = BitConverter.ToUInt32(packet, 8);
 
-            MercUpdateEvent(id, mercId);
+            PetOrMercUpdateEvent?.Invoke(id, mercId);
         }
 
-        public delegate void PortalAssign(UInt32 ownerId, UInt32 portalId);
-        public event PortalAssign PortalUpdateEvent = delegate { };
-        protected void PortalUpdate(byte type, List<byte> data)
-        {
+        protected void PetOrMercUpdate(byte type, List<byte> data) {
+            byte[] packet = data.ToArray();
+            Logger.Write($"{nameof(PetOrMercUpdate)}: [{type:X}] [{BitConverter.ToString(packet)}]");
+        }
+
+        protected void PortalUpdate(byte type, List<byte> data) {
             byte[] packet = data.ToArray();
             int offset = 5;
             UInt32 ownerId = BitConverter.ToUInt32(packet, 1);
 
-            PortalUpdateEvent(ownerId, BitConverter.ToUInt32(packet, 21));
+            PortalUpdateEvent?.Invoke(ownerId, BitConverter.ToUInt32(packet, 21));
 
             //String name = System.Text.Encoding.ASCII.GetString(packet, offset, 15);
             /*
@@ -394,68 +397,53 @@ namespace BattleNet.Connections.Handlers
              */
         }
 
-        public delegate void NoParams();
-        public event NoParams UpdateTimestamp = delegate { };
-        protected void Pong(byte type, List<byte> data)
-        {
-            UpdateTimestamp();
+
+        protected void Pong(byte type, List<byte> data) {
+            UpdateTimestamp?.Invoke();
         }
 
-        public delegate void LifeUpdate(UInt32 plife);
-        public event LifeUpdate UpdateLife = delegate { };
-        protected void LifeManaPacket(byte type, List<byte> data)
-        {
+        protected void LifeManaPacket(byte type, List<byte> data) {
             byte[] packet = data.ToArray();
             if (BitConverter.ToUInt16(packet, 6) == 0x0000)
                 return;
 
             UInt32 plife = (uint)BitConverter.ToUInt16(packet, 1) & 0x7FFF;
 
-            UpdateLife(plife);
+            UpdateLife?.Invoke(plife);
         }
 
-        public event NoParams SwapWeaponSet = delegate { };
-        protected void WeaponSetSwitched(byte type, List<byte> data)
-        {
-            SwapWeaponSet();
+        protected void WeaponSetSwitched(byte type, List<byte> data) {
+            SwapWeaponSet?.Invoke();
         }
 
-        public event SkillUpdate UpdateSkillLevel = delegate { };
-        protected void SkillPacket(byte type, List<byte> data)
-        {
+
+        protected void SkillPacket(byte type, List<byte> data) {
             byte[] packet = data.ToArray();
             byte skillCount = packet[1];
             int offset = 6;
-            for (int i = 0; i < skillCount; i++)
-            {
+            for (int i = 0; i < skillCount; i++) {
                 UInt16 skill = BitConverter.ToUInt16(packet, offset);
                 byte level = packet[offset + 2];
-                UpdateSkillLevel((Skills.Type)skill, level);
+                UpdateSkillLevel?.Invoke((Skills.Type)skill, level);
                 offset += 3;
             }
         }
-        public delegate void ItemUpdate(Item item);
-        public event ItemUpdate NewItem = delegate { };
-        protected void ItemAction(byte type, List<byte> data)
-        {
+
+        protected void ItemAction(byte type, List<byte> data) {
             Item item = Items.Parser.Parse(data);
-            NewItem(item);
+            NewItem?.Invoke(item);
         }
 
-        public static bool BitScanReverse(out int index, ulong mask)
-        {
+        public static bool BitScanReverse(out int index, ulong mask) {
             index = 0;
-            while (mask > 1)
-            {
+            while (mask > 1) {
                 mask >>= 1;
                 index++;
             }
             return mask == 1;
         }
-        public delegate void AddNpcDelegate(NpcEntity npc);
-        public event AddNpcDelegate AddNpcEvent;
-        protected void NpcAssignment(byte type, List<byte> data)
-        {
+
+        protected void NpcAssignment(byte type, List<byte> data) {
             byte[] packet = data.ToArray();
             NpcEntity output;
             //try
@@ -482,13 +470,10 @@ namespace BattleNet.Connections.Handlers
 
             bool lookupName = false;
 
-            if (data.Count > 0x10)
-            {
+            if (data.Count > 0x10) {
                 br.Read(4);
-                if (br.ReadBit())
-                {
-                    for (int i = 0; i < informationLength; i++)
-                    {
+                if (br.ReadBit()) {
+                    for (int i = 0; i < informationLength; i++) {
                         int temp;
 
                         int value = Int32.Parse(entries[i]);
@@ -506,8 +491,7 @@ namespace BattleNet.Connections.Handlers
                 output.SuperUnique = false;
 
                 output.HasFlags = br.ReadBit();
-                if (output.HasFlags)
-                {
+                if (output.HasFlags) {
                     output.Champion = br.ReadBit();
                     output.Unique = br.ReadBit();
                     output.SuperUnique = br.ReadBit();
@@ -516,17 +500,14 @@ namespace BattleNet.Connections.Handlers
                     //Console.WriteLine("{0} {1} {2} {3} {4}", output.Champion, output.Unique, output.SuperUnique, output.IsMinion, output.Ghostly);
                 }
 
-                if (output.SuperUnique)
-                {
+                if (output.SuperUnique) {
                     output.SuperUniqueId = br.ReadBitsLittleEndian(16);
                     String name;
-                    if (!DataManager.Instance._superUniques.Get(output.SuperUniqueId, out name))
-                    {
+                    if (!DataManager.Instance._superUniques.Get(output.SuperUniqueId, out name)) {
                         Logger.Write("Failed to lookup super unique monster name for {0}", output.SuperUniqueId);
                         output.Name = "invalid";
                     }
-                    else
-                    {
+                    else {
                         output.Name = name;
                         //Console.WriteLine("NPC: {0}", name);
                     }
@@ -534,11 +515,9 @@ namespace BattleNet.Connections.Handlers
                 else
                     lookupName = true;
 
-                if (data.Count > 17 && lookupName != true && output.Name != "invalid")
-                {
+                if (data.Count > 17 && lookupName != true && output.Name != "invalid") {
                     output.IsLightning = false;
-                    while (true)
-                    {
+                    while (true) {
                         byte mod = (byte)br.ReadBitsLittleEndian(8);
                         if (mod == 0)
                             break;
@@ -550,8 +529,7 @@ namespace BattleNet.Connections.Handlers
             else
                 lookupName = true;
 
-            if (lookupName)
-            {
+            if (lookupName) {
                 String name;
                 if (!DataManager.Instance._monsterNames.Get((int)output.Type, out name))
                     Console.WriteLine("Failed to Look up monster name for {0}", output.Type);
@@ -561,11 +539,10 @@ namespace BattleNet.Connections.Handlers
                 //Console.WriteLine("NPC: {0}", name);
             }
 
-            AddNpcEvent(output);
+            AddNpcEvent?.Invoke(output);
         }
-        protected void VoidRequest(byte type, List<byte> data)
-        {
-            //Logger.Write("Unknown Packet 0x{0:X2} received!", type);
+        protected void VoidRequest(byte type, List<byte> data) {
+            Logger.Write("Unknown Packet 0x{0:X2} received!", type);
         }
 
     }

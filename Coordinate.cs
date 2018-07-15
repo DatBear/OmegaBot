@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BattleNet
 {
-    class Coordinate
+    public class Coordinate
     {
         public ushort X { get; set; }
         public ushort Y { get; set; }

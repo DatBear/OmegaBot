@@ -5,7 +5,7 @@ using System.Text;
 using BattleNet.Logging;
 
 namespace BattleNet {
-    class GameData {
+    public class GameData {
         /*
          * 
          *  Enumerations and Static Consts
@@ -29,8 +29,8 @@ namespace BattleNet {
         public const Int32 StashWidth = 6;
         public const Int32 StashHeight = 8;
 
-        public const Int32 CubeWidth = 3;
-        public const Int32 CubeHeight = 4;
+        public const Int32 CubeWidth = 5;//3
+        public const Int32 CubeHeight = 5;//4
 
 
         public GameData() {
@@ -78,6 +78,7 @@ namespace BattleNet {
         public Int32 WeaponSet { get; set; }
         public Boolean HasMerc { get; set; }
         public Int32 LastTimestamp { get; set; }
+        public bool ShouldLeaveGame { get; set; }
 
 
         public void Init() {

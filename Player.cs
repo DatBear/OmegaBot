@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BattleNet
 {
-    class Player : Entity
+    public class Player : Entity
     {
         public String Name { get; set; }
         public Boolean HasMecenary { get; set; }

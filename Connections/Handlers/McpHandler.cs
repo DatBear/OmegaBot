@@ -271,7 +271,7 @@ namespace BattleNet.Connections.Handlers
         public void MakeGameFromSettings(Client.GameDifficulty difficulty, string gameName, string gamePass) {
             var name = gameName.Replace("%i", _nextGameIndex.ToString());
             var pass = gamePass.Replace("%i", _nextGameIndex.ToString());
-            Logger.Write($"Create Game {name} with Password {pass}");
+            Logger.Write($"Create Game {name} // {pass}");
             MakeGame(difficulty, name, pass);
 
             _nextGameIndex++;

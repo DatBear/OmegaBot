@@ -21,8 +21,10 @@
     public class GameOptions {
         public ChickenOptions ChickenOptions { get; set; }
         public BossOptions BossOptions { get; set; }
-        public string Name;
-        public string Password;
+        public string Name { get; set; }
+        public string Password { get; set; }
+        public string FollowAccountName { get; set; }
+        public string FollowPlayerName { get; set; }
         public string Difficulty { get; set; }
         public int StartDelay { get; set; }
         public int MinRuntime { get; set; }

@@ -25,16 +25,16 @@ namespace BattleNet.Connections
             //_owner.InGame = false;
             Logger.Write("[BNCS] Connecting to {0}:{1}", server, port);
             // Establish connection
-            _socket.Connect(server, port);
-            _stream = _socket.GetStream();
-            if (!_stream.CanWrite)
+            Socket.Connect(server, port);
+            Stream = Socket.GetStream();
+            if (!Stream.CanWrite)
             {
                 Logger.Write("Failed To connect to {0}:{1}", server, port);
                 return false;
             }
 
-            _stream.WriteByte(0x01);
-            _stream.Write(AuthInfoPacket, 0, AuthInfoPacket.Length);
+            Stream.WriteByte(0x01);
+            Stream.Write(AuthInfoPacket, 0, AuthInfoPacket.Length);
             OnStartThread();
             return true;
         }
@@ -44,7 +44,7 @@ namespace BattleNet.Connections
             while (bncsBuffer.Count < 4)
             {
                 try {
-                    var temp = (byte)_stream.ReadByte();
+                    var temp = (byte)Stream.ReadByte();
                     bncsBuffer.Add(temp);
                 }
                 catch
@@ -64,7 +64,7 @@ namespace BattleNet.Connections
             {
                 try
                 {
-                    byte temp = (byte)_stream.ReadByte();
+                    byte temp = (byte)Stream.ReadByte();
                     bncsBuffer.Add(temp);
                 }
                 catch

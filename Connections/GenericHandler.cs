@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BattleNet.Connections
 {
-    class GenericHandler
+    public class GenericHandler
     {
         public static readonly byte[] Nulls = { 0x00, 0x00, 0x00, 0x00 };
         public static readonly byte[] Ten = { 0x10, 0x00, 0x00, 0x00 };

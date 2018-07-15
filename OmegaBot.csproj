@@ -90,6 +90,7 @@
     <Compile Include="Coordinate.cs" />
     <Compile Include="DataManager.cs" />
     <Compile Include="Entity.cs" />
+    <Compile Include="Enums\PartyAction.cs" />
     <Compile Include="GameData.cs" />
     <Compile Include="GameThread.cs" />
     <Compile Include="Globals.cs" />
@@ -107,6 +108,11 @@
     <Compile Include="SerializableDictionary.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Skills.cs" />
+    <Compile Include="Strategies\AttackStrategy.cs" />
+    <Compile Include="Strategies\FollowStrategy.cs" />
+    <Compile Include="Strategies\HealingStrategy.cs" />
+    <Compile Include="Strategies\EventHandlerStrategy.cs" />
+    <Compile Include="Strategies\PartyStrategy.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="WorldObject.cs" />
   </ItemGroup>

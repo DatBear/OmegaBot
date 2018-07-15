@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace BattleNet {
-    class Entity {
+    public class Entity {
         public Boolean Initialized { get; set; }
         public UInt32 Id { get; set; }
         public Coordinate Location { get; set; }

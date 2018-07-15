@@ -5,6 +5,8 @@ using System.Threading;
 using BattleNet.Connections;
 using BattleNet.Logging;
 using System.IO;
+using BattleNet.Connections.Handlers;
+using BattleNet.Strategies;
 
 namespace BattleNet
 {
@@ -13,13 +15,19 @@ namespace BattleNet
         public GameData GameData { get; set; }
 
         private D2gsConnection _d2gsConnection;
+        private D2gsHandler _d2gsHandler;
 
-        public GameThread(D2gsConnection connection, UInt32 chickenLife, UInt32 potLife)
+        private List<EventHandlerStrategy> _strategies = new List<EventHandlerStrategy>();
+
+        public GameThread(D2gsConnection connection, D2gsHandler handler, UInt32 chickenLife, UInt32 potLife)
         {
             _d2gsConnection = connection;
+            _d2gsHandler = handler;
             GameData = new GameData();
             GameData.ChickenLife = chickenLife;
             GameData.PotLife = potLife;
+            _strategies.Add(new PartyStrategy(connection, GameData));
+            _strategies.Add(new FollowStrategy(connection, GameData));
         }
 
         public static int Time()
@@ -33,36 +41,41 @@ namespace BattleNet
             Logger.Write("Starting Bot thread");
             _startRun = new AutoResetEvent(false);
             _startRun.WaitOne();
+            _strategies.ForEach(x => x.AddListeners(_d2gsHandler));
             while (true)
             {
-                Logger.Write("Signalled to start bot");
-                Int32 startTime = Time();
-                Logger.Write("Bot is in town.");
-                Thread.Sleep(3000);
+                while (!GameData.ShouldLeaveGame) {
 
-                //StashItems();
-
-                MoveToAct5();
-                /*
-                if (_gameData.WeaponSet != 0)
-                    WeaponSwap();
-                */
-                DoPindle();
-
-                Logger.Write("Leaving the game.");
-                LeaveGame();
-                Thread.Sleep(500);
-
-                Int32 endTime = Time() - startTime;
-                Logger.Write("Run took {0} seconds.", endTime);
-                if (endTime < Settings.Instance.GameMinRuntime())
-                {
-                    Int32 waitTime = Settings.Instance.GameMinRuntime() - endTime;
-
-                    Logger.Write("waiting {0} seconds.", waitTime);
-                    Thread.Sleep(waitTime * 1000);
+                    Thread.Sleep(100);
                 }
+                //Logger.Write("Signalled to start bot");
+                //Int32 startTime = Time();
+                //Logger.Write("Bot is in town.");
+                //Thread.Sleep(3000);
 
+                ////StashItems();
+
+                //MoveToAct5();
+                ///*
+                //if (_gameData.WeaponSet != 0)
+                //    WeaponSwap();
+                //*/
+                //DoPindle();
+
+                //Logger.Write("Leaving the game.");
+                //LeaveGame();
+                //Thread.Sleep(500);
+
+                //Int32 endTime = Time() - startTime;
+                //Logger.Write("Run took {0} seconds.", endTime);
+                //if (endTime < Settings.Instance.GameMinRuntime())
+                //{
+                //    Int32 waitTime = Settings.Instance.GameMinRuntime() - endTime;
+
+                //    Logger.Write("waiting {0} seconds.", waitTime);
+                //    Thread.Sleep(waitTime * 1000);
+                //}
+                _strategies.ForEach(x => x.RemoveListeners(_d2gsHandler));
                 _startRun.WaitOne();
             }
         }
@@ -162,6 +175,10 @@ namespace BattleNet
             return true;
         }
 
+        public bool SwitchSkill(Skills.Type skill) {
+            return SwitchSkill((uint) skill);
+        }
+
         public bool GetAliveNpc(String name, double range, out NpcEntity output)
         {
             var n = (from npc in GameData.Npcs
@@ -180,9 +197,7 @@ namespace BattleNet
 
         public NpcEntity GetNpc(String name)
         {
-            NpcEntity npc = (from n in GameData.Npcs
-                             where n.Value.Name == name
-                             select n).FirstOrDefault().Value;
+            NpcEntity npc = GameData.Npcs.FirstOrDefault(n => n.Value.Name == name).Value;
             return npc;
         }
 
@@ -321,15 +336,23 @@ namespace BattleNet
 
             //Precast();
 
-            SwitchSkill(0x36);
-            Thread.Sleep(300);
+            //teleport...
+            //SwitchSkill((uint)Skills.Type.teleport);
+            //Thread.Sleep(300);
 
-            SendPacket(Actions.CastOnCoord(10064, 13286));
-            Thread.Sleep(300);
-            SendPacket(Actions.CastOnCoord(10061, 13260));
-            Thread.Sleep(300);
-            SendPacket(Actions.CastOnCoord(10058, 13236));
-            Thread.Sleep(300);
+            MoveTo(10064, 13268);
+            Thread.Sleep(500);
+            MoveTo(10061, 13260);
+            Thread.Sleep(500);
+            MoveTo(10058, 13236);
+            Thread.Sleep(500);
+
+            //SendPacket(Actions.CastOnCoord(10064, 13286));
+            //Thread.Sleep(300);
+            //SendPacket(Actions.CastOnCoord(10061, 13260));
+            //Thread.Sleep(300);
+            //SendPacket(Actions.CastOnCoord(10058, 13236));
+            //Thread.Sleep(300);
            
             NpcEntity pindle = GetNpc("Pindleskin");
             if (pindle == default(NpcEntity))
@@ -393,9 +416,10 @@ namespace BattleNet
             //}
             
         }
-        public UInt32 GetSkillLevel(Skills.Type skill)
-        {
-            return GameData.SkillLevels[skill] + GameData.ItemSkillLevels[skill];
+        public UInt32 GetSkillLevel(Skills.Type skill) {
+            GameData.SkillLevels.TryGetValue(skill, out var skillLevel);
+            GameData.ItemSkillLevels.TryGetValue(skill, out var itemSkillLevel);
+            return skillLevel + itemSkillLevel;
         }
 
         public virtual bool UsePotion()

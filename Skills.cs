@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BattleNet
 {
-    class Skills
+    public class Skills
     {
         public enum Type
         {

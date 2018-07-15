@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace BattleNet
 {
-    class PriorityQueue<P, V>
+    public class PriorityQueue<P, V>
     {
         private ReaderWriterLockSlim queueLock = new ReaderWriterLockSlim();
         private SortedDictionary<P, Queue<V>> list = new SortedDictionary<P, Queue<V>>();

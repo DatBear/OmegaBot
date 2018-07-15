@@ -6,6 +6,7 @@ using BattleNet.Connections.Readers;
 using BattleNet.Connections.Handlers;
 using System.Net;
 using System.Threading;
+using BattleNet.Enums;
 using BattleNet.Logging;
 
 namespace BattleNet.Connections
@@ -36,7 +37,7 @@ namespace BattleNet.Connections
             _d2gsReader = new D2gsReader(ref _d2gsConnection, character);
             _d2gsHandler = new D2gsHandler(ref _d2gsConnection);
             _gsPing = new GameServerPing(ref _d2gsConnection);
-            _gameThread = new GameThread(_d2gsConnection, chickenLife, potLife);
+            _gameThread = new GameThread(_d2gsConnection, _d2gsHandler, chickenLife, potLife);
             _asciiMap = new AsciiMap(_gameThread.GameData, _d2gsConnection);
 
             _d2gsConnection.StartThread += delegate {
@@ -80,7 +81,7 @@ namespace BattleNet.Connections
             _d2gsHandler.UpdateNpcMovement += OnUpdateNpcMovement;
             _d2gsHandler.NpcMoveToTarget += OnNpcMoveToTarget;
             _d2gsHandler.UpdateNpcState += OnUpdateNpcState;
-            _d2gsHandler.MercUpdateEvent += OnMercUpdateEvent;
+            _d2gsHandler.PetOrMercUpdateEvent += OnPetOrMercUpdateEvent;
             _d2gsHandler.PortalUpdateEvent += OnPortalUpdateEvent;
             _d2gsHandler.UpdateTimestamp += OnUpdateTimestamp;
             _d2gsHandler.SwapWeaponSet += OnSwapWeaponSet;
@@ -90,6 +91,13 @@ namespace BattleNet.Connections
             _d2gsHandler.NewItem += OnNewItem;
             _d2gsHandler.AddNpcEvent += OnAddNpcEvent;
             _d2gsHandler.NpcTalkedEvent += OnNpcTalkedEvent;
+            _d2gsHandler.PartyUpdateEvent += OnPartyUpdateEvent;
+        }
+
+        private void OnPartyUpdateEvent(int owner, PartyAction action) {
+            if (action == PartyAction.ServerInvite) {
+                
+            }
         }
 
         private void OnUpdateActData(Globals.ActType act, int mapId, int areaId) {
@@ -198,7 +206,7 @@ namespace BattleNet.Connections
             npc.Life = life;
         }
 
-        private void OnMercUpdateEvent(uint id, uint mercId) {
+        private void OnPetOrMercUpdateEvent(uint id, uint mercId) {
             Logger.Write("Mercenary for 0x{0:X} found your id: 0x{1:X}", id, _gameThread.GameData.Me.Id);
             if (id == _gameThread.GameData.Me.Id) {
                 _gameThread.GameData.Me.MercenaryId = mercId;
